@@ -1,0 +1,30 @@
+body { width: 450px; }
+ul, li { list-style: none; }
+
+li {
+    background-color: #0a1827;
+    color: #ffffff;
+    margin: 1em 0em;
+    padding: 1.5em;
+    text-align: center;
+}
+
+li:hover {
+    background-color: #1e4573;
+    cursor: pointer;
+}
+
+button {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.selected {
+    background-color: #a3b83b;
+    box-shadow: 0px 5px 5px 5px #444444;
+}
+
+.icon {
+    width: 25px;
+    height: 25px;
+}
