@@ -15,4 +15,4 @@ Added import functionality for json.
 ![5 Deleting a selected session. ](images/pic5.png)
 ![6 Editing a selected session. ](images/pic6.png)
 ![7 Downloading a selected session. ](images/pic7.png)
-![8 Importiog a session json file. ](images/pic7.png)
+![8 Importiog a session json file. ](images/pic8.png)
