@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Session Manager",
+  "name": " Easy Session Manager",
   "version": "0.0.1",
-  "description": "Session Manager allows you to manage your Firefox session by backing up or loading your saved sessions.",
+  "description": " Easy Session Manager allows you to manage your Firefox session by backing up or loading your saved sessions.",
 
   "applications": {
     "gecko": {
@@ -12,8 +12,9 @@
   },
 
   "icons": {
-    "48": "images/icons/sessionManager.png",
-    "96": "images/icons/sessionManager.png"
+    "48": "images/icons/sessionManager48x48.png",
+    "96": "images/icons/sessionManager96x96.png",
+    "512": "images/icons/sessionManager.png"
   },
 
   "permissions": [
@@ -24,7 +25,7 @@
 
   "browser_action": {
     "default_icon": "images/icons/sessionManager.png",
-    "default_title": "Session Manager",
+    "default_title": " Easy Session Manager",
     "default_popup": "pages/sessionManager.html"
   }
 

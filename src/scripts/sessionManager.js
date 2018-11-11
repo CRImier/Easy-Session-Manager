@@ -74,7 +74,7 @@ const editSession = () => {
             json = JSON.parse(storageResults[id]);
             saveToStorage(newName, JSON.stringify(json));
         });
-        selectedItem.innerHTML = newName;
+        selectedItem.textContent = newName;
     }
 }
 
