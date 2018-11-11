@@ -37,6 +37,13 @@ const saveToStorage = (name, data) => {
     storage.set({[name]: data});
 }
 
+const importSession = () => {
+    browser.tabs.create({
+      url: browser.extension.getURL("../pages/import.html"),
+      active: true
+    });
+}
+
 const downloadSession = () => {
     var dlAnchorElem = document.getElementById('downloadAnchorElem');
     let id           = selectedItem.innerHTML;

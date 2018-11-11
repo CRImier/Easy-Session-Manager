@@ -4,8 +4,8 @@ Easy Session Manager allows you to manage your Firefox session by backing up or 
 # Download
 https://addons.mozilla.org/en-US/firefox/addon/easy-session-manager/
 
-# Version: 0.0.1
-Released Program
+# Version: 0.0.2
+Added import functionality for json.
 
 # Images
 ![1 Default interface with no sessions. ](images/pic1.png)
@@ -15,3 +15,4 @@ Released Program
 ![5 Deleting a selected session. ](images/pic5.png)
 ![6 Editing a selected session. ](images/pic6.png)
 ![7 Downloading a selected session. ](images/pic7.png)
+![8 Importiog a session json file. ](images/pic7.png)

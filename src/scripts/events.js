@@ -17,6 +17,8 @@ document.addEventListener("click", (e) => {
             }
         } else if (e.target.name == "save") {
             saveSession();
+        } else if (e.target.name == "import") {
+            importSession();
         } else if (selectedItem) {
             if (e.target.name == "download")
                 downloadSession();

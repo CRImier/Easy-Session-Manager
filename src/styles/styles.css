@@ -19,6 +19,10 @@ button {
     color: #000000;
 }
 
+#inputId {
+    display: none;
+}
+
 .selected {
     background-color: #a3b83b;
     box-shadow: 0px 5px 5px 5px #444444;
