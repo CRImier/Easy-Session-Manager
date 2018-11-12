@@ -5,7 +5,7 @@ Easy Session Manager allows you to manage your Firefox session by backing up or 
 https://addons.mozilla.org/en-US/firefox/addon/easy-session-manager/
 
 # Version: 0.0.3
-Set tabs to auto discard but the curently active one.
+Set tabs to auto discard but the currently active one.
 
 # Images
 ![1 Default interface with no sessions. ](images/pic1.png)
@@ -15,4 +15,4 @@ Set tabs to auto discard but the curently active one.
 ![5 Deleting a selected session. ](images/pic5.png)
 ![6 Editing a selected session. ](images/pic6.png)
 ![7 Downloading a selected session. ](images/pic7.png)
-![8 Importiog a session json file. ](images/pic8.png)
+![8 Importing a session JSON file. ](images/pic8.png)
