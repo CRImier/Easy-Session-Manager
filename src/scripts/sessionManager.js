@@ -113,6 +113,7 @@ const loadSession = (id = null) => {
                 }
 
                 windowSys.create({ url: urls });
+                browser.tabs.discard(urls);
             });
 
             // Finalize clear out windows
