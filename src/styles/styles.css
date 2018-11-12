@@ -23,6 +23,29 @@ button {
     display: none;
 }
 
+#lableTag {
+    top: 48%;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    background-image: url('../images/icons/import.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    text-align: center;
+    background-color: rgba(41, 95, 115, 0.85);
+    transition: 0.6s;
+}
+
+.container:hover {
+    transition: 0.6s;
+    background-color: rgba(41, 95, 115, 0.65);
+    cursor: pointer;
+}
+
 .selected {
     background-color: #a3b83b;
     box-shadow: 0px 5px 5px 5px #444444;
