@@ -1,10 +1,42 @@
+const regexp    = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 const storage   = browser.storage.local;
 const windowSys = browser.windows;
 
 
+const alertMessage = (type, message) => {
+    let msgTag    = document.getElementById("allertMessage");
+    let text      = document.createTextNode(message);
+    let fontColor = "rgba(255, 255, 255, 1)";
+    let bgColor   = "";
+
+    if (type === "success") {
+        bgColor   = "rgba(72, 125, 25, 1)";
+    } else if (type === "warning") {
+        bgColor   = "rgba(195, 123, 0, 1)";
+    } else if (type === "error") {
+        bgColor   = "rgba(125, 45, 25, 1)";
+    }
+
+    msgTag.style.backgroundColor = bgColor;
+    msgTag.style.color           = fontColor;
+    msgTag.style.display         = "block";
+    msgTag.append(text);
+
+    setTimeout(function () {
+        let msgTag           = document.getElementById("allertMessage");
+        msgTag.innerHTML     = "";
+        msgTag.style.display = "none";
+    }, 3000);
+}
+
 const saveSession = () => {
-    let enteryName = prompt("What is this session's name?", "" + new Date().toLocaleString()
-                                                                           .split(',')[0]);
+    let enteryName = '';
+
+    do {
+        enteryName = prompt("What is this session's name? Allowed: a-z, A-Z, -, _",
+                            new Date().toLocaleString().split(',')[0].replace(/\//g, '-'));
+        if (enteryName == null) break
+    } while (enteryName.search(regexp) == -1);
 
     if (enteryName) {
         console.log("Saving session...");
@@ -29,12 +61,13 @@ const saveSession = () => {
             }
         });
     } else {
-        console.log("Canceled save...");
+        alertMessage("warning", "Canceled save...");
     }
 }
 
 const saveToStorage = (name, data) => {
     storage.set({[name]: data});
+    alertMessage("success", "Saved session...");
 }
 
 const importSession = () => {
@@ -49,7 +82,7 @@ const downloadSession = () => {
     let id           = selectedItem.innerHTML;
     fileName         = "session:" + id + ":" +
                         new Date().toLocaleString().split(',')[0]
-                                                   .replace("/", "-") + ".json";
+                                                   .replace(/\//g, "-") + ".json";
 
     storage.get(id).then((storageResults) => {
         let json    = JSON.parse(storageResults[id]);
@@ -68,20 +101,30 @@ const deleteFromStorage = () => {
         storage.remove(selectedItem.innerHTML).then(() => {
             selectedItem.parentElement.removeChild(selectedItem);
         });
+        alertMessage("success", "Deleted session successfully...");
+    } else {
+        alertMessage("warning", "Canceled deletion...");
     }
 }
 
 const editSession = () => {
     let id      = selectedItem.innerHTML;
-    let newName = prompt("Editing selected session...", id);
+    let newName = '';
 
-    if (newName != null) {
+    do {
+        newName = prompt("Editing selected session... Allowed: a-z, A-Z, -, _", id);
+        if (newName == null) break
+    } while (newName.search(regexp) == -1);
+
+    if (newName) {
         storage.get(id).then((storageResults) => {
             storage.remove(id);
             json = JSON.parse(storageResults[id]);
             saveToStorage(newName, JSON.stringify(json));
         });
         selectedItem.textContent = newName;
+    } else {
+        alertMessage("warning", "Canceled edit...");
     }
 }
 

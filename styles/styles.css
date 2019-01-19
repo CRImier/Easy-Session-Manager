@@ -19,6 +19,23 @@ button {
     color: #000000;
 }
 
+#allertMessage {
+    position: absolute;
+    top: 5%;
+    z-index: 999;
+    width: 50%;
+    left: 25%;
+    padding: 0.5em;
+    text-align: center;
+    display: none;
+}
+
+#savedSessions {
+    max-height: 15em;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
 #inputId {
     display: none;
 }
