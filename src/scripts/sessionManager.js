@@ -19,6 +19,7 @@ const alertMessage = (type, message) => {
     msgTag.style.backgroundColor = bgColor;
     msgTag.style.color           = fontColor;
     msgTag.style.display         = "block";
+    msgTag.innerHTML             = "";
     msgTag.append(text);
 
     setTimeout(function () {
@@ -65,8 +66,17 @@ const saveSession = () => {
 }
 
 const saveToStorage = (name, data) => {
-    storage.set({[name]: data});
-    alertMessage("success", "Saved session...");
+    storage.get(name).then((storageResults) => {
+        let json = null;
+        try {
+            json = JSON.parse(storageResults[name]);
+            alertMessage("success", "Overwrote session...");
+        } catch (e) {
+            alertMessage("success", "Saved session...");
+        } finally {
+            storage.set({[name]: data});
+        }
+    });
 }
 
 const importSession = () => {
