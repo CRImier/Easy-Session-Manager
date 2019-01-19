@@ -1,7 +1,6 @@
-const regexp    = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
-const storage   = browser.storage.local;
-const windowSys = browser.windows;
-
+const regexp       = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
+const storage      = browser.storage.local;
+const windowSys    = browser.windows;
 
 const alertMessage = (type, message) => {
     let msgTag    = document.getElementById("allertMessage");
@@ -131,36 +130,52 @@ const editSession = () => {
 const loadSession = (id = null) => {
     console.log("Loading session...");
     try {
-        storage.get(id).then((storageResults) => {
-            let json = JSON.parse(storageResults[id]);
-            let keys = Object.keys(json);
+        storage.get(id).then(storageResults => {
+            let json        = JSON.parse(storageResults[id]);
+            let keys        = Object.keys(json);
+            let keysLength  = Object.keys(json).length;
 
-            browser.windows.getAll().then((windows) => {
-                windowSys.getCurrent({populate: true}).then((currentWindow) => {
-                    // Clear out windows
-                    for (var i = 0; i < windows.length; i++) {
+            browser.windows.getAll().then(windows => {
+                windowSys.getCurrent({populate: true}).then(currentWindow => {
+                    let wasCurrentTabId = null;
+
+                    // Clear all non-current windows and then current window's tabs
+                    for (let i = 0; i < windows.length; i++) {
                         if (currentWindow.id != windows[i].id) {
                             windowSys.remove(windows[i].id);
+                        } else {
+                            let ids = [];
+                            currentWindow.tabs.forEach(tab => {
+                                if (!tab.active) {
+                                    ids.push(tab.id);
+                                } else {
+                                    wasCurrentTabId = tab.id;
+                                }
+                            });
+                            browser.tabs.remove(ids);
                         }
                     }
-                }, windows);
-            });
 
-            // Open windows and populate with proper tabs
-            keys.forEach((key) => {
-                let store = json[key];
-                let urls  = [];
+                    // First load tabs to current window.
+                    let store = json[keys[0]];
+                    store.forEach(tab => {
+                        browser.tabs.create({ url: tab.link });
+                    });
 
-                for (var i = 0; i < store.length; i++) {
-                    urls.push(store[i].link);
-                }
+                    // If more than one window, load tabs to new windows.
+                    browser.tabs.remove(wasCurrentTabId);
+                    if (keysLength > 1) {
+                        for (let i = 1; i < keysLength; i++) {
+                            let store = json[keys[i]];
+                            let urls  = [];
 
-                windowSys.create({ url: urls });
-            });
-
-            // Finalize clear out windows
-            windowSys.getCurrent({populate: true}).then((currentWindow) => {
-                windowSys.remove(currentWindow.id);
+                            for (let j = 0; j < store.length; j++) {
+                                urls.push(store[j].link);
+                            }
+                            windowSys.create({ url: urls });
+                        }
+                    }
+                });
             });
         });
     } catch (e) { console.log(e); }
