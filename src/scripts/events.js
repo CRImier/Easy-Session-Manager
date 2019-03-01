@@ -26,8 +26,6 @@ document.addEventListener("click", (e) => {
                 deleteFromStorage();
             else if (e.target.name == "edit")
                 editSession();
-        } else {
-            alertMessage("warning", "Select a session first...");
         }
     }
 });

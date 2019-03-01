@@ -1,53 +1,47 @@
 const regexp = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 
+const processor = (obj, enteryName = '',
+                   message  = "What is this session's name? Allowed: a-z, A-Z, -, _") => {
+    let data       = obj.target.result;
+    let inputTag   = document.createElement("INPUT");
+    inputTag.value = enteryName;
 
-const alertMessage = (type, message) => {
-    let msgTag    = document.getElementById("allertMessage");
-    let text      = document.createTextNode(message);
-    let fontColor = "rgba(255, 255, 255, 1)";
-    let bgColor   = "";
+    swal(message, {
+        content: inputTag,
+        buttons: true,
+    }).then((value) => {
+        if (value) {
+            enteryName = inputTag.value.replace(/ /g, "_");
+            if (enteryName) {
+                if (enteryName.search(regexp) == -1) {
+                    processor(obj, enteryName, "Please try again...\nAllowed: a-z, A-Z, -, _")
+                    return ;
+                }
 
-    if (type === "success") {
-        bgColor   = "rgba(72, 125, 25, 1)";
-    } else if (type === "warning") {
-        bgColor   = "rgba(195, 123, 0, 1)";
-    } else if (type === "error") {
-        bgColor   = "rgba(125, 45, 25, 1)";
-    }
-
-    msgTag.style.backgroundColor = bgColor;
-    msgTag.style.color           = fontColor;
-    msgTag.style.display         = "block";
-    msgTag.append(text);
-
-    setTimeout(function () {
-        let msgTag           = document.getElementById("allertMessage");
-        msgTag.innerHTML     = "";
-        msgTag.style.display = "none";
-    }, 4000);
-}
-
-const processor = (obj, enteryName = '') => {
-    let data  = obj.target.result;
-
-    do {
-        enteryName = prompt("What is this session's name? Allowed: a-z, A-Z, -, _", '' + enteryName);
-        if (enteryName == null) break
-    } while (enteryName.search(regexp) == -1);
-
-    if (enteryName) {
-        try {
-            console.log("Importing session...");
-            JSON.parse(data);
-            browser.storage.local.set({[enteryName]: data});
-            alertMessage("success", "Imported file successfully.")
-        } catch (e) {
-            alertMessage("error", "Failed to import data. Not a JSON parsable file.");
-            return ;
+                try {
+                    console.log("Importing session...");
+                    JSON.parse(data);
+                    browser.storage.local.set({[enteryName]: data});
+                    swal("Imported file successfully.", {
+                        icon: "success",
+                    });
+                } catch (e) {
+                    swal("Failed to import data. Not a JSON parsable file.", {
+                        icon: "error",
+                    });
+                    return ;
+                }
+            } else {
+                swal("Canceled import.", {
+                    icon: "warning",
+                });
+            }
+        } else {
+            swal("Canceled import.", {
+                icon: "warning",
+            });
         }
-    } else {
-        alertMessage("warning", "Canceled import.");
-    }
+    });
 };
 
 document.getElementById("inputId").onchange = (e) => {

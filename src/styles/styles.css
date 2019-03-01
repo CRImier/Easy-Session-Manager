@@ -1,4 +1,9 @@
-body { width: 450px; }
+body {
+    width: 450px;
+    height: 520px;
+    overflow-x: hidden;
+}
+
 ul, li { list-style: none; }
 
 li {
@@ -19,19 +24,10 @@ button {
     color: #000000;
 }
 
-#allertMessage {
-    position: absolute;
-    top: 5%;
-    z-index: 999;
-    width: 50%;
-    left: 25%;
-    padding: 0.5em;
-    text-align: center;
-    display: none;
-}
-
 #savedSessions {
-    max-height: 15em;
+    height: 445px;
+    min-height: 445px;
+    max-height: 445px;
     overflow-x: hidden;
     overflow-y: auto;
 }

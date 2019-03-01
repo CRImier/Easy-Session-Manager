@@ -1,80 +1,139 @@
-const regexp       = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 const storage      = browser.storage.local;
 const windowSys    = browser.windows;
+const regexp       = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 
-const alertMessage = (type, message) => {
-    let msgTag    = document.getElementById("allertMessage");
-    let text      = document.createTextNode(message);
-    let fontColor = "rgba(255, 255, 255, 1)";
-    let bgColor   = "";
 
-    if (type === "success") {
-        bgColor   = "rgba(72, 125, 25, 1)";
-    } else if (type === "warning") {
-        bgColor   = "rgba(195, 123, 0, 1)";
-    } else if (type === "error") {
-        bgColor   = "rgba(125, 45, 25, 1)";
-    }
+const saveSession = (message = "What is this session's name? Allowed: a-z, A-Z, -, _") => {
+    let inputTag   = document.createElement("INPUT");
+    inputTag.value = new Date().toLocaleString().split(',')[0].replace(/\//g, '-');
 
-    msgTag.style.backgroundColor = bgColor;
-    msgTag.style.color           = fontColor;
-    msgTag.style.display         = "block";
-    msgTag.innerHTML             = "";
-    msgTag.append(text);
-
-    setTimeout(function () {
-        let msgTag           = document.getElementById("allertMessage");
-        msgTag.innerHTML     = "";
-        msgTag.style.display = "none";
-    }, 3000);
-}
-
-const saveSession = () => {
-    let enteryName = '';
-
-    do {
-        enteryName = prompt("What is this session's name? Allowed: a-z, A-Z, -, _",
-                            new Date().toLocaleString().split(',')[0].replace(/\//g, '-'));
-        if (enteryName == null) break
-    } while (enteryName.search(regexp) == -1);
-
-    if (enteryName) {
-        console.log("Saving session...");
-        windowSys.getAll({ populate: true, windowTypes: ["normal"] }).then((windows) => {
-            let sessionData = {};
-            for (let i = 0; i < windows.length; i++) {
-                let links = [];
-                for (var ii = 0; ii < windows[i].tabs.length; ii++) {
-                    if (!windows[i].tabs[ii].url.includes("about:")) {
-                        links.push(
-                            {"link" : windows[i].tabs[ii].url.trim()}
-                        );
-                    }
-
+    swal(message, {
+        content: inputTag,
+        buttons: true,
+    }).then((value) => {
+        if (value) {
+            let enteryName = inputTag.value.replace(/ /g, "_");
+            if (enteryName) {
+                if (enteryName.search(regexp) == -1) {
+                    saveSession("Please try again...\nAllowed: a-z, A-Z, -, _")
+                    return ;
                 }
-                sessionData["WindowID:" + windows[i].id] = links;
+
+                console.log("Saving session...");
+                windowSys.getAll({ populate: true, windowTypes: ["normal"] }).then((windows) => {
+                    let sessionData = {};
+                    for (let i = 0; i < windows.length; i++) {
+                        let links = [];
+                        for (var ii = 0; ii < windows[i].tabs.length; ii++) {
+                            if (!windows[i].tabs[ii].url.includes("about:")) {
+                                links.push(
+                                    {"link" : windows[i].tabs[ii].url.trim()}
+                                );
+                            }
+
+                        }
+                        sessionData["WindowID:" + windows[i].id] = links;
+                    }
+                    saveToStorage(enteryName, JSON.stringify(sessionData));
+                }).then(() => {
+                    if (document.getElementsByName(enteryName).length == 0) {
+                        appendToSavedSessionsList(enteryName);
+                    }
+                });
+            } else {
+                swal("Canceled save...", {
+                    icon: "warning",
+                });
             }
-            saveToStorage(enteryName, JSON.stringify(sessionData));
-        }).then(() => {
-            if (document.getElementsByName(enteryName).length == 0) {
-                appendToSavedSessionsList(enteryName);
-            }
-        });
-    } else {
-        alertMessage("warning", "Canceled save...");
-    }
+        } else {
+            swal("Canceled save...", {
+                icon: "warning",
+            });
+        }
+    });
 }
 
-const saveToStorage = (name, data) => {
+const editSession = (message = "Editing selected session... Allowed: a-z, A-Z, -, _") => {
+    let id         = selectedItem.innerHTML;
+    let inputTag   = document.createElement("INPUT");
+    inputTag.value = id;
+
+    swal(message, {
+        content: inputTag,
+        buttons: true,
+    }).then((value) => {
+        if (value) {
+            let newName = inputTag.value.replace(/ /g, "_");
+
+            if (newName) {
+                if (newName.search(regexp) == -1) {
+                    editSession("Please try again...\nAllowed: a-z, A-Z, -, _")
+                    return ;
+                }
+
+                storage.get(id).then((storageResults) => {
+                    storage.remove(id);
+                    json = JSON.parse(storageResults[id]);
+                    saveToStorage(newName, JSON.stringify(json), true);
+                });
+
+                selectedItem.textContent = newName;
+            } else {
+                swal("Canceled edit...", {
+                    icon: "warning",
+                });
+            }
+        } else {
+            swal("Canceled edit...", {
+                icon: "warning",
+            });
+        }
+    });
+}
+
+const saveToStorage = (name, data, fromEdit = false) => {
     storage.get(name).then((storageResults) => {
         let json = null;
         try {
             json = JSON.parse(storageResults[name]);
-            alertMessage("success", "Overwrote session...");
+            swal("Overwrote session...", {
+                icon: "warning",
+            });
         } catch (e) {
-            alertMessage("success", "Saved session...");
+            if (fromEdit) {  // minor logic fix
+                swal("Overwrote session...", {
+                    icon: "warning",
+                });
+            } else {
+                swal("Saved session...", {
+                    icon: "success",
+                });
+            }
         } finally {
             storage.set({[name]: data});
+        }
+    });
+}
+
+const deleteFromStorage = () => {
+    swal({
+        title: "Are you sure?",
+        text: "Do you wish to delete session:\n" + selectedItem.innerHTML + "?",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+    }).then((willDelete) => {
+        if (willDelete) {
+            storage.remove(selectedItem.innerHTML).then(() => {
+                selectedItem.parentElement.removeChild(selectedItem);
+            });
+            swal("Deleted session successfully...", {
+                icon: "success",
+            });
+        } else {
+            swal("Canceled deletion...", {
+                icon: "warning",
+            });
         }
     });
 }
@@ -90,8 +149,7 @@ const downloadSession = () => {
     var dlAnchorElem = document.getElementById('downloadAnchorElem');
     let id           = selectedItem.innerHTML;
     fileName         = "session:" + id + ":" +
-                        new Date().toLocaleString().split(',')[0]
-                                                   .replace(/\//g, "-") + ".json";
+                        new Date().toLocaleString().split(',')[0].replace(/\//g, "-") + ".json";
 
     storage.get(id).then((storageResults) => {
         let json    = JSON.parse(storageResults[id]);
@@ -101,40 +159,6 @@ const downloadSession = () => {
         dlAnchorElem.click();
     });
 
-}
-
-const deleteFromStorage = () => {
-    let action =  confirm("Do you wish to delete session: " + selectedItem.innerHTML + "?");
-
-    if (action) {
-        storage.remove(selectedItem.innerHTML).then(() => {
-            selectedItem.parentElement.removeChild(selectedItem);
-        });
-        alertMessage("success", "Deleted session successfully...");
-    } else {
-        alertMessage("warning", "Canceled deletion...");
-    }
-}
-
-const editSession = () => {
-    let id      = selectedItem.innerHTML;
-    let newName = '';
-
-    do {
-        newName = prompt("Editing selected session... Allowed: a-z, A-Z, -, _", id);
-        if (newName == null) break
-    } while (newName.search(regexp) == -1);
-
-    if (newName) {
-        storage.get(id).then((storageResults) => {
-            storage.remove(id);
-            json = JSON.parse(storageResults[id]);
-            saveToStorage(newName, JSON.stringify(json));
-        });
-        selectedItem.textContent = newName;
-    } else {
-        alertMessage("warning", "Canceled edit...");
-    }
 }
 
 const loadSession = (id = null) => {
