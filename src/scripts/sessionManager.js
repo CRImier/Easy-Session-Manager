@@ -3,9 +3,12 @@ const windowSys    = browser.windows;
 const regexp       = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 
 
-const saveSession = (message = "What is this session's name? Allowed: a-z, A-Z, -, _") => {
+const saveSession = (elm = null, message = "What is this session's name? Allowed: a-z, A-Z, -, _") => {
     let inputTag   = document.createElement("INPUT");
     inputTag.value = new Date().toLocaleString().split(',')[0].replace(/\//g, '-');
+
+    if (elm !== null)
+        inputTag.value = elm.innerHTML;
 
     swal(message, {
         content: inputTag,
@@ -13,6 +16,7 @@ const saveSession = (message = "What is this session's name? Allowed: a-z, A-Z, 
     }).then((value) => {
         if (value) {
             let enteryName = inputTag.value.replace(/ /g, "_");
+
             if (enteryName) {
                 if (enteryName.search(regexp) == -1) {
                     saveSession("Please try again...\nAllowed: a-z, A-Z, -, _")
@@ -53,8 +57,8 @@ const saveSession = (message = "What is this session's name? Allowed: a-z, A-Z, 
     });
 }
 
-const editSession = (message = "Editing selected session... Allowed: a-z, A-Z, -, _") => {
-    let id         = selectedItem.innerHTML;
+const editSession = (elm = null, message = "Editing selected session... Allowed: a-z, A-Z, -, _") => {
+    let id         = elm.innerHTML;
     let inputTag   = document.createElement("INPUT");
     inputTag.value = id;
 
@@ -77,7 +81,7 @@ const editSession = (message = "Editing selected session... Allowed: a-z, A-Z, -
                     saveToStorage(newName, JSON.stringify(json), true);
                 });
 
-                selectedItem.textContent = newName;
+                elm.textContent = newName;
             } else {
                 swal("Canceled edit...", {
                     icon: "warning",
@@ -115,17 +119,17 @@ const saveToStorage = (name, data, fromEdit = false) => {
     });
 }
 
-const deleteFromStorage = () => {
+const deleteFromStorage = (elm = null) => {
     swal({
         title: "Are you sure?",
-        text: "Do you wish to delete session:\n" + selectedItem.innerHTML + "?",
+        text: "Do you wish to delete session:\n" + elm.innerHTML + "?",
         icon: "warning",
         buttons: true,
         dangerMode: true,
     }).then((willDelete) => {
         if (willDelete) {
-            storage.remove(selectedItem.innerHTML).then(() => {
-                selectedItem.parentElement.removeChild(selectedItem);
+            storage.remove(elm.innerHTML).then(() => {
+                elm.parentElement.removeChild(elm);
             });
             swal("Deleted session successfully...", {
                 icon: "success",
@@ -145,15 +149,15 @@ const importSession = () => {
     });
 }
 
-const downloadSession = () => {
+const downloadSession = (elm = null) => {
     let pTag         = document.createElement("P");
     let inputTag     = document.createElement("INPUT");
     let chkBoxTag    = document.createElement("INPUT");
     let lblTag       = document.createElement("LABEL");
-    let brTag       = document.createElement("BR");
+    let brTag        = document.createElement("BR");
     var dlAnchorElem = document.getElementById('downloadAnchorElem');
     let text         = document.createTextNode("Append Date?");
-    let id           = selectedItem.innerHTML;
+    let id           = elm.innerHTML;
     let fileName     = "session:" + id + ".json";
     chkBoxTag.type   = "checkbox";
     inputTag.value   = fileName;

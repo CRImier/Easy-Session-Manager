@@ -7,6 +7,7 @@ document.addEventListener("click", (e) => {
             if (selectedItem) {
                 if (selectedItem == e.target && selectedItem.className == "selected") {
                     selectedItem.setAttribute("class", "");
+                    selectedItem = null;
                 } else {
                     selectedItem.setAttribute("class", "");
                     selectedItem = e.target;
@@ -17,16 +18,16 @@ document.addEventListener("click", (e) => {
                 selectedItem.setAttribute("class", "selected");
             }
         } else if (name == "save") {
-            saveSession();
+            saveSession(selectedItem);
         } else if (name == "import") {
             importSession();
         } else if (selectedItem) {
             if (name == "download")
-                downloadSession();
+                downloadSession(selectedItem);
             else if (name == "delete")
-                deleteFromStorage();
+                deleteFromStorage(selectedItem);
             else if (name == "edit")
-                editSession();
+                editSession(selectedItem);
         } else if (/(download|delete|edit)/.test(name)) {
             swal("Select a session first...", {
                 icon: "warning",
