@@ -2,6 +2,7 @@ let selectedItem = null;
 
 document.addEventListener("click", (e) => {
     if (e.button == 0) {  // Left click
+        let name = e.target.name;
         if (e.target.tagName == "LI") {
             if (selectedItem) {
                 if (selectedItem == e.target && selectedItem.className == "selected") {
@@ -15,17 +16,21 @@ document.addEventListener("click", (e) => {
                 selectedItem = e.target;
                 selectedItem.setAttribute("class", "selected");
             }
-        } else if (e.target.name == "save") {
+        } else if (name == "save") {
             saveSession();
-        } else if (e.target.name == "import") {
+        } else if (name == "import") {
             importSession();
         } else if (selectedItem) {
-            if (e.target.name == "download")
+            if (name == "download")
                 downloadSession();
-            else if (e.target.name == "delete")
+            else if (name == "delete")
                 deleteFromStorage();
-            else if (e.target.name == "edit")
+            else if (name == "edit")
                 editSession();
+        } else if (/(download|delete|edit)/.test(name)) {
+            swal("Select a session first...", {
+                icon: "warning",
+            });
         }
     }
 });

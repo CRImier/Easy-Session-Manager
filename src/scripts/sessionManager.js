@@ -146,19 +146,43 @@ const importSession = () => {
 }
 
 const downloadSession = () => {
+    let pTag         = document.createElement("P");
+    let inputTag     = document.createElement("INPUT");
+    let chkBoxTag    = document.createElement("INPUT");
+    let lblTag       = document.createElement("LABEL");
+    let brTag       = document.createElement("BR");
     var dlAnchorElem = document.getElementById('downloadAnchorElem');
+    let text         = document.createTextNode("Append Date?");
     let id           = selectedItem.innerHTML;
-    fileName         = "session:" + id + ":" +
-                        new Date().toLocaleString().split(',')[0].replace(/\//g, "-") + ".json";
+    let fileName     = "session:" + id + ".json";
+    chkBoxTag.type   = "checkbox";
+    inputTag.value   = fileName;
+    chkBoxTag.id     = "chkbx";
+    lblTag.htmlFor   = "chkbx";
+    lblTag.append(text);
+    pTag.append(lblTag);
+    pTag.append(chkBoxTag);
+    pTag.append(brTag);
+    pTag.append(inputTag);
 
-    storage.get(id).then((storageResults) => {
-        let json    = JSON.parse(storageResults[id]);
-        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
-        dlAnchorElem.setAttribute("href", dataStr);
-        dlAnchorElem.setAttribute("download", fileName);
-        dlAnchorElem.click();
+    swal("Download Session?", {
+            content: pTag,
+            buttons: true,
+    }).then((willDl) => {        if (willDl) {
+            if (chkBoxTag.checked) {
+                fileName = "session:" + id + ":" +
+                     new Date().toLocaleString().split(',')[0].replace(/\//g, "-") + ".json";
+            }
+
+            storage.get(id).then((storageResults) => {
+                let json    = JSON.parse(storageResults[id]);
+                let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+                dlAnchorElem.setAttribute("href", dataStr);
+                dlAnchorElem.setAttribute("download", fileName);
+                dlAnchorElem.click();
+            });
+        }
     });
-
 }
 
 const loadSession = (id = null) => {
