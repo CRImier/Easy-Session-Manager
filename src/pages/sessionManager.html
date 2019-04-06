@@ -7,42 +7,44 @@
 <body>
 
 <center>
-    <button type="button" name="import">
-        Import <img class="icon" src="../images/icons/import.png" alt="Import JSON"/>
-        <input id="inputId" type="file" />
-    </button>
+    <input type="image" name="save" src="../images/icons/save.png" title="Save..." alt="Save" />
+    <input type="image" name="edit" src="../images/icons/edit.png" title="Edit..." alt="Edit" />
+    <input type="image" name="delete" src="../images/icons/delete.png" title="Delete..." alt="Delete" />
 
-    <button type="button" name="save">
-        Save <img class="icon" src="../images/icons/save.png" alt="Save Image"/>
-    </button>
-    <button type="button" name="download">
-        Download <img class="icon" src="../images/icons/download.png" alt="Download Image"/>
-    </button>
+    <br/><br/>
+    <input id="replaceTabs" name="replaceTabs" type="checkbox" checked />
+    <label for="replaceTabs">Replace Current Tabs</label>
+    <input id="selectiveOpen" name="selectiveOpen" type="checkbox" />
+    <label for="selectiveOpen">Selective Open</label>
 
     <div id="savedSessions">
 
     </div>
 
-    <span id="allertMessage">
-
-    </span>
-
-    <button type="button" name="edit">
-        Edit <img class="icon" src="../images/icons/edit.png" alt="Edit Image"/>
-    </button>
-
-    <button type="button" name="delete">
-        Delete <img class="icon" src="../images/icons/delete.png" alt="Delete Image"/>
-    </button>
-
+    <input type="image" name="import" src="../images/icons/import.png" title="Import..." alt="Import" />
+    <input type="image" name="donate" src="../images/icons/donate.png" title="Donate..." alt="Donate" />
+    <input type="image" name="download" id="dl" src="../images/icons/download.png" title="Download..." alt="Download" />
 </center>
 
+<template id="ulTemplate">
+    <h2 class="ulHeader"></h2>
+    <input type="checkbox" id="selectAll" checked="true" />
+    <label for="selectAll" title="Select All">Select All</label>
+    <ul class="collection">
+    </ul>
+</template>
+
+<template id="liTemplate">
+    <li>
+        <input type="checkbox" id="" name="" checked="true" />
+        <label for="" title=""></label>
+    </li>
+</template>
+
+
 <a id="downloadAnchorElem" href="#"></a>
-
-
 <script src="../scripts/events.js"></script>
 <script src="../scripts/sweetalert.js"></script>
 <script src="../scripts/sessionManager.js"></script>
-
 </body>
 </html>

@@ -4,8 +4,9 @@ Easy Session Manager allows you to manage your Firefox session by backing up or 
 # Download
 https://addons.mozilla.org/en-US/firefox/addon/easy-session-manager/
 
-# Version: 0.1.4
-Added on save grab selected item name if applicable. Fixed clearing of selected item.
+# Version: 0.1.6
+Added selective opening of tabs.
+Added new or current session opening of tabs.
 
 # Images
 ![1 Default interface with no sessions. ](images/pic1.png)

@@ -172,7 +172,8 @@ const downloadSession = (elm = null) => {
     swal("Download Session?", {
             content: pTag,
             buttons: true,
-    }).then((willDl) => {        if (willDl) {
+    }).then((willDl) => {
+        if (willDl) {
             if (chkBoxTag.checked) {
                 fileName = "session:" + id + ":" +
                      new Date().toLocaleString().split(',')[0].replace(/\//g, "-") + ".json";
@@ -183,24 +184,23 @@ const downloadSession = (elm = null) => {
                 let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
                 dlAnchorElem.setAttribute("href", dataStr);
                 dlAnchorElem.setAttribute("download", fileName);
+                dlAnchorElem.setAttribute("target", "");
                 dlAnchorElem.click();
             });
         }
     });
 }
 
-const loadSession = (id = null) => {
+const loadSession = (json = null, replaceTabs = false) => {
     console.log("Loading session...");
+    let keys       = Object.keys(json);
+    let keysLength = Object.keys(json).length;
     try {
-        storage.get(id).then(storageResults => {
-            let json        = JSON.parse(storageResults[id]);
-            let keys        = Object.keys(json);
-            let keysLength  = Object.keys(json).length;
+        browser.windows.getAll().then(windows => {
+            windowSys.getCurrent({populate: true}).then(currentWindow => {
+                let wasCurrentTabId = null;
 
-            browser.windows.getAll().then(windows => {
-                windowSys.getCurrent({populate: true}).then(currentWindow => {
-                    let wasCurrentTabId = null;
-
+                if (replaceTabs) { // Clear all windows but main then load...
                     // Clear all non-current windows and then current window's tabs
                     for (let i = 0; i < windows.length; i++) {
                         if (currentWindow.id != windows[i].id) {
@@ -223,24 +223,33 @@ const loadSession = (id = null) => {
                     store.forEach(tab => {
                         browser.tabs.create({ url: tab.link });
                     });
+                    browser.tabs.remove(wasCurrentTabId);
 
                     // If more than one window, load tabs to new windows.
-                    browser.tabs.remove(wasCurrentTabId);
                     if (keysLength > 1) {
-                        for (let i = 1; i < keysLength; i++) {
-                            let store = json[keys[i]];
-                            let urls  = [];
-
-                            for (let j = 0; j < store.length; j++) {
-                                urls.push(store[j].link);
-                            }
-                            windowSys.create({ url: urls });
-                        }
+                        windowMaker(1, keysLength, keys, json)
                     }
-                });
+                } else { // Load into new windows...
+                    if (keysLength > 0) {
+                        windowMaker(0, keysLength, keys, json)
+                    }
+                }
+
             });
         });
     } catch (e) { console.log(e); }
+}
+
+const windowMaker = (i, keysLength, keys, json) => {
+    for (; i < keysLength; i++) {
+        let store = json[keys[i]];
+        let urls  = [];
+
+        for (let j = 0; j < store.length; j++) {
+            urls.push(store[j].link);
+        }
+        windowSys.create({ url: urls });
+    }
 }
 
 const getSavedSessionIDs = () => {
@@ -254,9 +263,10 @@ const getSavedSessionIDs = () => {
 }
 
 const appendToSavedSessionsList = (enteryName) => {
-    let liTag = document.createElement("LI");
-    let text  = document.createTextNode(enteryName);
-    liTag.setAttribute("name", enteryName);
+    let liTag   = document.createElement("LI");
+    let text    = document.createTextNode(enteryName.trim());
+    liTag.setAttribute("name", enteryName.trim());
+    liTag.className = "sessionLI";
     liTag.append(text);
     document.getElementById("savedSessions").append(liTag);
 }

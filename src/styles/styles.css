@@ -6,34 +6,49 @@ body {
 
 ul, li { list-style: none; }
 
-li {
-    background-color: #0a1827;
-    color: #ffffff;
-    margin: 1em 0em;
-    padding: 1.5em;
-    text-align: center;
-}
-
-li:hover {
-    background-color: #1e4573;
-    cursor: pointer;
-}
-
-button {
+input[type=image] {
+    width: 2.5em;
+    height: 2.5em;
+    padding: 0.4em;
     background-color: #ffffff;
     color: #000000;
 }
 
+input[type=image]:hover {
+    cursor: pointer;
+    background-color: #a3b83b;
+    color: #ffffff;
+}
+
 #savedSessions {
-    height: 445px;
-    min-height: 445px;
-    max-height: 445px;
+    height: 365px;
+    min-height: 365x;
+    max-height: 365px;
     overflow-x: hidden;
     overflow-y: auto;
+    margin-bottom: 0.6em;
+    margin-top: 0.6em;
+}
+
+#editSelectionContainer {
+    height: 350px;
+    min-height: 350x;
+    max-height: 350px;
+    white-space: nowrap;
+    display: block;
+    overflow-x: auto;
+}
+
+#editSelectionContainer > ul > li {
+    float: left;
 }
 
 #inputId {
     display: none;
+}
+
+#selectAll {
+    margin-bottom: 1.5em;
 }
 
 #lableTag {
@@ -56,6 +71,19 @@ button {
 .container:hover {
     transition: 0.6s;
     background-color: rgba(41, 95, 115, 0.65);
+    cursor: pointer;
+}
+
+.sessionLI {
+    background-color: #0a1827;
+    color: #ffffff;
+    margin: 1em 0em;
+    padding: 1.5em;
+    text-align: center;
+}
+
+.sessionLI:hover {
+    background-color: #1e4573;
     cursor: pointer;
 }
 
