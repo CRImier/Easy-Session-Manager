@@ -4,9 +4,8 @@ Easy Session Manager allows you to manage your Firefox session by backing up or 
 # Download
 https://addons.mozilla.org/en-US/firefox/addon/easy-session-manager/
 
-# Version: 0.1.6
-Added selective opening of tabs.
-Added new or current session opening of tabs.
+# Version: 0.1.7
+Fixed listing issue in selective open.
 
 # Images
 ![1 Default interface with no sessions. ](images/pic1.png)

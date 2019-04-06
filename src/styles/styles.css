@@ -39,6 +39,11 @@ input[type=image]:hover {
     overflow-x: auto;
 }
 
+#editSelectionContainer > ul {
+    display: block;
+    overflow: auto;
+}
+
 #editSelectionContainer > ul > li {
     float: left;
 }
