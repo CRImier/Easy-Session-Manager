@@ -75,11 +75,22 @@ document.addEventListener("dblclick", (e) => {
                         let liTemplate = document.querySelector('#liTemplate');
 
                         for (let i = 0; i < keysLength; i++) {
-                            let ulClone = document.importNode(ulTemplate.content, true);
-                            let ulTag   = ulClone.querySelector('.collection');
-                            let h2Txt   = document.createTextNode("Window: " + (i + 1));
-                            let store   = json[keys[i]];
-                            let  j      = 0;
+                            let ulClone      = document.importNode(ulTemplate.content, true);
+                            let ulTag        = ulClone.querySelector('.collection');
+                            let selAll       = ulClone.querySelector('input');
+                            let h2Tag        = ulClone.querySelector('.ulHeader');
+                            let ulLblTag     = ulClone.querySelector('label');
+                            let h2Txt        = document.createTextNode("Window: " + (i + 1));
+                            let store        = json[keys[i]];
+                            let  j           = 0;
+
+                            container.id     = "editSelectionContainer";
+                            selAll.id        = "selectAllWin" + i;
+                            ulLblTag.htmlFor = "selectAllWin" + i;
+                            selAll.addEventListener("click", function () {
+                                toggleSelect("Win" + i);
+                            });
+                            h2Tag.appendChild(h2Txt);
 
                             store.forEach(tab => {
                                 let liClone    = document.importNode(liTemplate.content, true);
@@ -95,12 +106,6 @@ document.addEventListener("dblclick", (e) => {
                                 j++;
                             });
 
-                            container.id = "editSelectionContainer";
-                            ulClone.querySelector('#selectAll')
-                                   .addEventListener("click", function () {
-                                toggleSelect("Win" + i);
-                            });
-                            ulClone.querySelector('.ulHeader').appendChild(h2Txt);
                             container.appendChild(ulClone);
                         }
 
