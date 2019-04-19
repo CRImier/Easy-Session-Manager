@@ -100,7 +100,6 @@ const editSession = (elm = null, message = "Editing selected session...\nAllowed
                     if (checkedTag.checked) { // if creating from collection new session
                         if (newName !== elm.innerText) {
                             let sessions = document.getElementById("savedSessions").querySelectorAll("li");
-                            console.log(sessions);
                             for (var i = 0; i < sessions.length; i++) {
                                 if (sessions[i].innerText === newName) {
                                     let min    = 1;
