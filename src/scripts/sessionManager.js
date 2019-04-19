@@ -165,6 +165,7 @@ const deleteFromStorage = (elm = null) => {
             storage.remove(elm.innerText).then(() => {
                 elm.parentElement.removeChild(elm);
             });
+            selectedItem = null; // reset selectedItem
             swal("Deleted session successfully...", {
                 icon: "success",
             });
