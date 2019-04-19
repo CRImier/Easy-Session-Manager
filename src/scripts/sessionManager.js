@@ -194,6 +194,13 @@ const loadSession = (json = null, replaceTabs = false) => {
                 let wasCurrentTabId = null;
 
                 if (replaceTabs) { // Clear all windows but main then load...
+                    if (keysLength == 0) {
+                        swal("Canceled operation; no tabs in session...", {
+                            icon: "error",
+                        });
+                        return ;
+                    }
+
                     for (let i = 0; i < windows.length; i++) {
                         if (currentWindow.id != windows[i].id) {
                             windowSys.remove(windows[i].id);
@@ -222,11 +229,14 @@ const loadSession = (json = null, replaceTabs = false) => {
                         windowMaker(1, keysLength, keys, json)
                     }
                 } else { // Load into new windows...
-                    if (keysLength > 0) {
+                    if (keysLength == 1) {
                         windowMaker(0, keysLength, keys, json)
+                    } else if (keysLength == 0) {
+                        swal("Canceled operation; no tabs in session...", {
+                            icon: "error",
+                        });
                     }
                 }
-
             });
         });
     } catch (e) { console.log(e); }
