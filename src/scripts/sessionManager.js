@@ -46,14 +46,10 @@ const saveSession = (elm = null, message = "Session Name\nAllowed: a-z, A-Z, 0-9
                     sessionData = selectionData(container, keys, keysLength);
                     saveToStorage(enteryName, JSON.stringify(sessionData));
                 } else {
-                    swal("Canceled save...", {
-                        icon: "warning",
-                    });
+                    messageWindow("warning", "Canceled save...");
                 }
             } else {
-                swal("Canceled save...", {
-                    icon: "warning",
-                });
+                messageWindow("warning", "Canceled save...");
             }
         });
     });
@@ -122,14 +118,10 @@ const editSession = (elm = null, message = "Editing selected session...\nAllowed
                         }
                     }
                 } else {
-                    swal("Canceled edit...", {
-                        icon: "warning",
-                    });
+                    messageWindow("warning", "Canceled edit...");
                 }
             } else {
-                swal("Canceled edit...", {
-                    icon: "warning",
-                });
+                messageWindow("warning", "Canceled edit...");
             }
         });
     });
@@ -195,9 +187,7 @@ const loadSession = (json = null, replaceTabs = false) => {
 
                 if (replaceTabs) { // Clear all windows but main then load...
                     if (keysLength == 0) {
-                        swal("Canceled operation; no tabs in session...", {
-                            icon: "error",
-                        });
+                        messageWindow("error", "Canceled operation; no tabs in session...");
                         return ;
                     }
 
@@ -232,9 +222,7 @@ const loadSession = (json = null, replaceTabs = false) => {
                     if (keysLength == 1) {
                         windowMaker(0, keysLength, keys, json)
                     } else if (keysLength == 0) {
-                        swal("Canceled operation; no tabs in session...", {
-                            icon: "error",
-                        });
+                        messageWindow("error", "Canceled operation; no tabs in session...");
                     }
                 }
             });

@@ -1,3 +1,7 @@
+const messageWindow = (type = "warning", message = "No message passed in...") => {
+    swal(message, { icon: type, });
+}
+
 const getSavedSessionIDs = () => {
     console.log("Getting saved sessions...");
     storage.get(null).then((storageResults) => {
@@ -48,19 +52,13 @@ const saveToStorage = (name, data, fromEdit = false) => {
         let json = null;
         try {
             json = JSON.parse(storageResults[name]);
-            swal("Overwrote session...", {
-                icon: "warning",
-            });
+            messageWindow("warning", "Overwrote session...");
         } catch (e) {
             if (fromEdit) {  // minor logic fix
-                swal("Overwrote session...", {
-                    icon: "warning",
-                });
+                messageWindow("warning", "Overwrote session...");
             } else {
                 appendToSavedSessionsList(name);
-                swal("Saved session...", {
-                    icon: "success",
-                });
+                messageWindow("success", "Saved session...");
             }
         } finally {
             storage.set({[name]: data});
@@ -81,13 +79,9 @@ const deleteFromStorage = (elm = null) => {
                 elm.parentElement.removeChild(elm);
             });
             selectedItem = null; // reset selectedItem
-            swal("Deleted session successfully...", {
-                icon: "success",
-            });
+            messageWindow("success", "Deleted session successfully...");
         } else {
-            swal("Canceled deletion...", {
-                icon: "warning",
-            });
+            messageWindow("warning", "Canceled deletion...");
         }
     });
 }

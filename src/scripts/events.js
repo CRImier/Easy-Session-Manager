@@ -20,9 +20,7 @@ document.addEventListener("click", (e) => {
                 else if (name == "edit")
                     editSession(selectedItem);
             } else {
-                swal("Select a session first...", {
-                    icon: "warning",
-                });
+                messageWindow("warning", "Select a session first...");
             }
         } else if (name == "save") {
             saveSession(selectedItem);
@@ -81,9 +79,7 @@ document.addEventListener("dblclick", (e) => {
                                 if (keysLength > 0) {
                                     loadSession(json, replaceTabs.checked);
                                 } else {
-                                    swal("Canceled operation; no tabs were selected...", {
-                                        icon: "warning",
-                                    });
+                                    messageWindow("warning", "Canceled operation; no tabs were selected...");
                                 }
                             }
                         });
