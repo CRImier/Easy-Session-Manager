@@ -3,7 +3,7 @@ const windowSys    = browser.windows;
 const regexp       = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 
 
-const saveSession = (elm = null, message = "[ Session Name ] Allowed: a-z, A-Z, -, _") => {
+const saveSession = (elm = null, message = "Session Name\nAllowed: a-z, A-Z, 0-9, -, _") => {
     let inputTag   = document.createElement("INPUT");
     inputTag.value = new Date().toLocaleString().split(',')[0].replace(/\//g, '-');
 
@@ -38,7 +38,7 @@ const saveSession = (elm = null, message = "[ Session Name ] Allowed: a-z, A-Z, 
 
                 if (enteryName) {
                     if (enteryName.search(regexp) == -1) {
-                        saveSession("Please try again...\nAllowed: a-z, A-Z, -, _")
+                        saveSession("Please try again...\nAllowed: a-z, A-Z, 0-9, -, _")
                         return ;
                     }
 
@@ -59,23 +59,19 @@ const saveSession = (elm = null, message = "[ Session Name ] Allowed: a-z, A-Z, 
     });
 }
 
-const editSession = (elm = null, message = "Editing selected session...\nAllowed: a-z, A-Z, -, _") => {
+const editSession = (elm = null, message = "Editing selected session...\nAllowed: a-z, A-Z, 0-9, -, _") => {
     let id             = elm.innerText;
     let inputTag       = document.createElement("INPUT");
     let checkedTag     = document.createElement("INPUT");
     let labelTag       = document.createElement("LABEL");
     let brTag          = document.createElement("BR");
 
-    inputTag.disabled  = true;
     inputTag.value     = id;
     checkedTag.type    = "checkbox";
-    checkedTag.id      = "newOrOld";
+    checkedTag.id      = "newSession";
+    checkedTag.checked = false;
     labelTag.innerText = "Create New Session";
-    labelTag.htmlFor   = "newOrOld";
-
-    checkedTag.onchange = function () {
-        inputTag.disabled = !inputTag.disabled;
-    }
+    labelTag.htmlFor   = "newSession";
 
     storage.get(id).then((storageResults) => {
         let json        = JSON.parse(storageResults[id]);
@@ -96,22 +92,41 @@ const editSession = (elm = null, message = "Editing selected session...\nAllowed
 
                 if (newName) {
                     if (newName.search(regexp) == -1) {
-                        editSession("Please try again...\nAllowed: a-z, A-Z, -, _")
+                        editSession("Please try again...\nAllowed: a-z, A-Z, 0-9, -, _")
                         return ;
                     }
 
                     json = selectionData(container, keys, keysLength);
-                    if (!checkedTag.checked) {
-                        storage.get(id).then((storageResults) => {
-                            storage.remove(id);
-                            saveToStorage(newName, JSON.stringify(json), true);
-                        });
-                        elm.textContent = newName;
-                    } else {
-                        if (newName !== elm.textContent) {
+                    if (checkedTag.checked) { // if creating from collection new session
+                        if (newName !== elm.innerText) {
+                            let sessions = document.getElementById("savedSessions").querySelectorAll("li");
+                            console.log(sessions);
+                            for (var i = 0; i < sessions.length; i++) {
+                                if (sessions[i].innerText === newName) {
+                                    let min    = 1;
+                                    let max    = 200000;
+                                    var random = Math.floor(Math.random() * (+max - +min)) + +min;
+                                    newName += "-" + random + "-" + Math.floor(Math.random() * (+10 - +1)) + +1;
+                                }
+                            }
                             saveToStorage(newName, JSON.stringify(json), false);
-                        } else {
-                            editSession(elm, "Cannot have the same name as before...\nAllowed: a-z, A-Z, -, _")
+                        } else { // enforce unique name
+                            let min    = 1;
+                            let max    = 200000;
+                            var random = Math.floor(Math.random() * (+max - +min)) + +min;
+                            newName += "-" + random + "-" + Math.floor(Math.random() * (+10 - +1)) + +1;
+                            saveToStorage(newName, JSON.stringify(json), false);
+                        }
+                    } else {
+                        if (newName !== elm.innerText) { // if not creating new session and diff name rename
+                            storage.get(id).then((storageResults) => {
+                                storage.remove(id);
+                                saveToStorage(newName, JSON.stringify(json), true);
+                            }).then(() => {
+                                elm.textContent = newName;
+                            });
+                        } else { // just replace
+                            saveToStorage(newName, JSON.stringify(json), true);
                         }
                     }
                 } else {
