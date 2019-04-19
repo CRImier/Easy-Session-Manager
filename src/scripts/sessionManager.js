@@ -99,15 +99,7 @@ const editSession = (elm = null, message = "Editing selected session...\nAllowed
                     json = selectionData(container, keys, keysLength);
                     if (checkedTag.checked) { // if creating from collection new session
                         if (newName !== elm.innerText) {
-                            let sessions = document.getElementById("savedSessions").querySelectorAll("li");
-                            for (var i = 0; i < sessions.length; i++) {
-                                if (sessions[i].innerText === newName) {
-                                    let min    = 1;
-                                    let max    = 200000;
-                                    var random = Math.floor(Math.random() * (+max - +min)) + +min;
-                                    newName += "-" + random + "-" + Math.floor(Math.random() * (+10 - +1)) + +1;
-                                }
-                            }
+                            newName = checkSessionListForDuplicate(newName);
                             saveToStorage(newName, JSON.stringify(json), false);
                         } else { // enforce unique name
                             let min    = 1;
@@ -118,6 +110,7 @@ const editSession = (elm = null, message = "Editing selected session...\nAllowed
                         }
                     } else {
                         if (newName !== elm.innerText) { // if not creating new session and diff name rename
+                            newName = checkSessionListForDuplicate(newName);
                             storage.get(id).then((storageResults) => {
                                 storage.remove(id);
                                 saveToStorage(newName, JSON.stringify(json), true);
@@ -139,55 +132,6 @@ const editSession = (elm = null, message = "Editing selected session...\nAllowed
                 });
             }
         });
-    });
-}
-
-const saveToStorage = (name, data, fromEdit = false) => {
-    storage.get(name).then((storageResults) => {
-        let json = null;
-        try {
-            json = JSON.parse(storageResults[name]);
-            swal("Overwrote session...", {
-                icon: "warning",
-            });
-        } catch (e) {
-            if (fromEdit) {  // minor logic fix
-                swal("Overwrote session...", {
-                    icon: "warning",
-                });
-            } else {
-                appendToSavedSessionsList(name);
-                swal("Saved session...", {
-                    icon: "success",
-                });
-            }
-        } finally {
-            storage.set({[name]: data});
-        }
-    });
-}
-
-const deleteFromStorage = (elm = null) => {
-    swal({
-        title: "Are you sure?",
-        text: "Do you wish to delete session:\n" + elm.innerText + "?",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true,
-    }).then((willDelete) => {
-        if (willDelete) {
-            storage.remove(elm.innerText).then(() => {
-                elm.parentElement.removeChild(elm);
-            });
-            selectedItem = null; // reset selectedItem
-            swal("Deleted session successfully...", {
-                icon: "success",
-            });
-        } else {
-            swal("Canceled deletion...", {
-                icon: "warning",
-            });
-        }
     });
 }
 
@@ -288,107 +232,4 @@ const loadSession = (json = null, replaceTabs = false) => {
     } catch (e) { console.log(e); }
 }
 
-const windowMaker = (i, keysLength, keys, json) => {
-    for (; i < keysLength; i++) {
-        let store = json[keys[i]];
-        let urls  = [];
-
-        for (let j = 0; j < store.length; j++) {
-            urls.push(store[j].link);
-        }
-        windowSys.create({ url: urls });
-    }
-}
-
-const getSavedSessionIDs = () => {
-    console.log("Getting saved sessions...");
-    storage.get(null).then((storageResults) => {
-        let keys = Object.keys(storageResults);
-        for (let key of keys) {
-            appendToSavedSessionsList(key);
-        }
-    });
-}
-
-const appendToSavedSessionsList = (enteryName) => {
-    let liTag   = document.createElement("LI");
-    let text    = document.createTextNode(enteryName.trim());
-    liTag.setAttribute("name", enteryName.trim());
-    liTag.className = "sessionLI";
-    liTag.append(text);
-    document.getElementById("savedSessions").append(liTag);
-}
-
 getSavedSessionIDs();
-
-
-
-
-/*    Selection Process    */
-
-const selectionWindow = (json = "", keys = null, keysLength = 0) => {
-    let container  = document.createElement("DIV");
-    let ulTemplate = document.querySelector('#ulTemplate');
-    let liTemplate = document.querySelector('#liTemplate');
-
-    for (let i = 0; i < keysLength; i++) {
-        let ulClone      = document.importNode(ulTemplate.content, true);
-        let ulTag        = ulClone.querySelector('.collection');
-        let selAll       = ulClone.querySelector('input');
-        let h2Tag        = ulClone.querySelector('.ulHeader');
-        let ulLblTag     = ulClone.querySelector('label');
-        let h2Txt        = document.createTextNode("Window: " + (i + 1));
-        let store        = json[keys[i]];
-        let  j           = 0;
-
-        container.id     = "editSelectionContainer";
-        selAll.id        = "selectAllWin" + i;
-        ulLblTag.htmlFor = "selectAllWin" + i;
-        selAll.addEventListener("click", function (eve) {
-            toggleSelect(eve.target, "Win" + i);
-        });
-        h2Tag.appendChild(h2Txt);
-
-        store.forEach(tab => {
-            let liClone    = document.importNode(liTemplate.content, true);
-            let inptTag    = liClone.querySelector("input");
-            let lblTag     = liClone.querySelector("label");
-            let labelTxt   = document.createTextNode(tab.link);
-            inptTag.id     = "Win" + i + "Li" + j;
-            lblTag.htmlFor = "Win" + i + "Li" + j;
-            lblTag.title   = tab.link;
-            inptTag.setAttribute("name", "Win" + i);  // Used for toggle select all
-            lblTag.appendChild(labelTxt);
-            ulTag.appendChild(liClone);
-            j++;
-        });
-
-        container.appendChild(ulClone);
-    }
-
-    return container;
-}
-
-const selectionData = (container = null, keys = null, keysLength = 0) => {
-    let sessionData = {};
-    let ulTags = container.querySelectorAll("ul");
-
-    for (let i = 0; i < keysLength; i++) {
-        let links = [];
-
-        for (var ii = 0; ii < ulTags[i].children.length; ii++) {
-            let li = ulTags[i].children[ii];
-            if (li.children[0].checked) {
-                links.push(
-                    {"link" : li.children[1].innerText.trim()}
-                );
-            }
-        }
-
-        if (links.length > 0) {
-            sessionData[keys[i]] = links;
-        }
-    }
-
-    return sessionData;
-}

@@ -4,8 +4,9 @@ Easy Session Manager allows you to manage your Firefox session by backing up or 
 # Download
 https://addons.mozilla.org/en-US/firefox/addon/easy-session-manager/
 
-# Version: 0.2.0.2
-Changed edit logic: If name is different, Editing will change the session name unless new session is checked.
+# Version: 0.2.1.0
+Fixed edit logic when renaming session overwrites another session with the same name.
+Split helper logic to utils.js.
 
 # Images
 ![1 Default interface with no sessions. ](images/pic1.png)
