@@ -31,9 +31,9 @@ input[type=image]:hover {
 }
 
 #editSelectionContainer {
-    height: 350px;
-    min-height: 350x;
-    max-height: 350px;
+    height: 315px;
+    min-height: 315px;
+    max-height: 315px;
     white-space: nowrap;
     display: block;
     overflow-x: auto;
@@ -60,6 +60,11 @@ input[type=image]:hover {
     top: 48%;
     margin: 0 auto;
     color: rgba(255, 255, 255, 0.5);
+}
+
+.collection {
+    padding-top: 1em;
+    padding-bottom: 1em;
 }
 
 .container {

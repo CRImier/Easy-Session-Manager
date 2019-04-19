@@ -3,95 +3,128 @@ const windowSys    = browser.windows;
 const regexp       = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 
 
-const saveSession = (elm = null, message = "What is this session's name? Allowed: a-z, A-Z, -, _") => {
+const saveSession = (elm = null, message = "[ Session Name ] Allowed: a-z, A-Z, -, _") => {
     let inputTag   = document.createElement("INPUT");
     inputTag.value = new Date().toLocaleString().split(',')[0].replace(/\//g, '-');
 
     if (elm !== null)
-        inputTag.value = elm.innerHTML;
+        inputTag.value = elm.innerText;
 
-    swal(message, {
-        content: inputTag,
-        buttons: true,
-    }).then((value) => {
-        if (value) {
-            let enteryName = inputTag.value.replace(/ /g, "_");
-
-            if (enteryName) {
-                if (enteryName.search(regexp) == -1) {
-                    saveSession("Please try again...\nAllowed: a-z, A-Z, -, _")
-                    return ;
+    windowSys.getAll({ populate: true, windowTypes: ["normal"] }).then((windows) => {
+        let sessionData = {};
+        for (let i = 0; i < windows.length; i++) {
+            let links = [];
+            for (var ii = 0; ii < windows[i].tabs.length; ii++) {
+                if (!windows[i].tabs[ii].url.includes("about:")) {
+                    links.push(
+                        {"link" : windows[i].tabs[ii].url.trim()}
+                    );
                 }
+            }
+            sessionData["WindowID:" + windows[i].id] = links;
+        }
 
-                console.log("Saving session...");
-                windowSys.getAll({ populate: true, windowTypes: ["normal"] }).then((windows) => {
-                    let sessionData = {};
-                    for (let i = 0; i < windows.length; i++) {
-                        let links = [];
-                        for (var ii = 0; ii < windows[i].tabs.length; ii++) {
-                            if (!windows[i].tabs[ii].url.includes("about:")) {
-                                links.push(
-                                    {"link" : windows[i].tabs[ii].url.trim()}
-                                );
-                            }
+        let keys       = Object.keys(sessionData);
+        let keysLength = Object.keys(sessionData).length;
+        let container  = selectionWindow(sessionData, keys, keysLength);
+        container.prepend(inputTag);
 
-                        }
-                        sessionData["WindowID:" + windows[i].id] = links;
+        swal(message, {
+            content: container,
+            buttons: true,
+        }).then((value) => {
+            if (value) {
+                let enteryName = inputTag.value.replace(/ /g, "_");
+
+                if (enteryName) {
+                    if (enteryName.search(regexp) == -1) {
+                        saveSession("Please try again...\nAllowed: a-z, A-Z, -, _")
+                        return ;
                     }
+
+                    console.log("Saving session...");
+                    sessionData = selectionData(container, keys, keysLength);
                     saveToStorage(enteryName, JSON.stringify(sessionData));
-                }).then(() => {
-                    if (document.getElementsByName(enteryName).length == 0) {
-                        appendToSavedSessionsList(enteryName);
-                    }
-                });
+                } else {
+                    swal("Canceled save...", {
+                        icon: "warning",
+                    });
+                }
             } else {
                 swal("Canceled save...", {
                     icon: "warning",
                 });
             }
-        } else {
-            swal("Canceled save...", {
-                icon: "warning",
-            });
-        }
+        });
     });
 }
 
-const editSession = (elm = null, message = "Editing selected session... Allowed: a-z, A-Z, -, _") => {
-    let id         = elm.innerHTML;
-    let inputTag   = document.createElement("INPUT");
-    inputTag.value = id;
+const editSession = (elm = null, message = "Editing selected session...\nAllowed: a-z, A-Z, -, _") => {
+    let id             = elm.innerText;
+    let inputTag       = document.createElement("INPUT");
+    let checkedTag     = document.createElement("INPUT");
+    let labelTag       = document.createElement("LABEL");
+    let brTag          = document.createElement("BR");
 
-    swal(message, {
-        content: inputTag,
-        buttons: true,
-    }).then((value) => {
-        if (value) {
-            let newName = inputTag.value.replace(/ /g, "_");
+    inputTag.disabled  = true;
+    inputTag.value     = id;
+    checkedTag.type    = "checkbox";
+    checkedTag.id      = "newOrOld";
+    labelTag.innerText = "Create New Session";
+    labelTag.htmlFor   = "newOrOld";
 
-            if (newName) {
-                if (newName.search(regexp) == -1) {
-                    editSession("Please try again...\nAllowed: a-z, A-Z, -, _")
-                    return ;
+    checkedTag.onchange = function () {
+        inputTag.disabled = !inputTag.disabled;
+    }
+
+    storage.get(id).then((storageResults) => {
+        let json        = JSON.parse(storageResults[id]);
+        let keys        = Object.keys(json);
+        let keysLength  = Object.keys(json).length;
+        let container   = selectionWindow(json, keys, keysLength);
+        container.prepend(labelTag);
+        container.prepend(checkedTag);
+        container.prepend(brTag);
+        container.prepend(inputTag);
+
+        swal(message, {
+            content: container,
+            buttons: true,
+        }).then((value) => {
+            if (value) {
+                let newName = inputTag.value.replace(/ /g, "_");
+
+                if (newName) {
+                    if (newName.search(regexp) == -1) {
+                        editSession("Please try again...\nAllowed: a-z, A-Z, -, _")
+                        return ;
+                    }
+
+                    json = selectionData(container, keys, keysLength);
+                    if (!checkedTag.checked) {
+                        storage.get(id).then((storageResults) => {
+                            storage.remove(id);
+                            saveToStorage(newName, JSON.stringify(json), true);
+                        });
+                        elm.textContent = newName;
+                    } else {
+                        if (newName !== elm.textContent) {
+                            saveToStorage(newName, JSON.stringify(json), false);
+                        } else {
+                            editSession(elm, "Cannot have the same name as before...\nAllowed: a-z, A-Z, -, _")
+                        }
+                    }
+                } else {
+                    swal("Canceled edit...", {
+                        icon: "warning",
+                    });
                 }
-
-                storage.get(id).then((storageResults) => {
-                    storage.remove(id);
-                    json = JSON.parse(storageResults[id]);
-                    saveToStorage(newName, JSON.stringify(json), true);
-                });
-
-                elm.textContent = newName;
             } else {
                 swal("Canceled edit...", {
                     icon: "warning",
                 });
             }
-        } else {
-            swal("Canceled edit...", {
-                icon: "warning",
-            });
-        }
+        });
     });
 }
 
@@ -109,6 +142,7 @@ const saveToStorage = (name, data, fromEdit = false) => {
                     icon: "warning",
                 });
             } else {
+                appendToSavedSessionsList(name);
                 swal("Saved session...", {
                     icon: "success",
                 });
@@ -122,13 +156,13 @@ const saveToStorage = (name, data, fromEdit = false) => {
 const deleteFromStorage = (elm = null) => {
     swal({
         title: "Are you sure?",
-        text: "Do you wish to delete session:\n" + elm.innerHTML + "?",
+        text: "Do you wish to delete session:\n" + elm.innerText + "?",
         icon: "warning",
         buttons: true,
         dangerMode: true,
     }).then((willDelete) => {
         if (willDelete) {
-            storage.remove(elm.innerHTML).then(() => {
+            storage.remove(elm.innerText).then(() => {
                 elm.parentElement.removeChild(elm);
             });
             swal("Deleted session successfully...", {
@@ -157,7 +191,7 @@ const downloadSession = (elm = null) => {
     let brTag        = document.createElement("BR");
     var dlAnchorElem = document.getElementById('downloadAnchorElem');
     let text         = document.createTextNode("Append Date?");
-    let id           = elm.innerHTML;
+    let id           = elm.innerText;
     let fileName     = "session:" + id + ".json";
     chkBoxTag.type   = "checkbox";
     inputTag.value   = fileName;
@@ -201,7 +235,6 @@ const loadSession = (json = null, replaceTabs = false) => {
                 let wasCurrentTabId = null;
 
                 if (replaceTabs) { // Clear all windows but main then load...
-                    // Clear all non-current windows and then current window's tabs
                     for (let i = 0; i < windows.length; i++) {
                         if (currentWindow.id != windows[i].id) {
                             windowSys.remove(windows[i].id);
@@ -272,3 +305,75 @@ const appendToSavedSessionsList = (enteryName) => {
 }
 
 getSavedSessionIDs();
+
+
+
+
+/*    Selection Process    */
+
+const selectionWindow = (json = "", keys = null, keysLength = 0) => {
+    let container  = document.createElement("DIV");
+    let ulTemplate = document.querySelector('#ulTemplate');
+    let liTemplate = document.querySelector('#liTemplate');
+
+    for (let i = 0; i < keysLength; i++) {
+        let ulClone      = document.importNode(ulTemplate.content, true);
+        let ulTag        = ulClone.querySelector('.collection');
+        let selAll       = ulClone.querySelector('input');
+        let h2Tag        = ulClone.querySelector('.ulHeader');
+        let ulLblTag     = ulClone.querySelector('label');
+        let h2Txt        = document.createTextNode("Window: " + (i + 1));
+        let store        = json[keys[i]];
+        let  j           = 0;
+
+        container.id     = "editSelectionContainer";
+        selAll.id        = "selectAllWin" + i;
+        ulLblTag.htmlFor = "selectAllWin" + i;
+        selAll.addEventListener("click", function (eve) {
+            toggleSelect(eve.target, "Win" + i);
+        });
+        h2Tag.appendChild(h2Txt);
+
+        store.forEach(tab => {
+            let liClone    = document.importNode(liTemplate.content, true);
+            let inptTag    = liClone.querySelector("input");
+            let lblTag     = liClone.querySelector("label");
+            let labelTxt   = document.createTextNode(tab.link);
+            inptTag.id     = "Win" + i + "Li" + j;
+            lblTag.htmlFor = "Win" + i + "Li" + j;
+            lblTag.title   = tab.link;
+            inptTag.setAttribute("name", "Win" + i);  // Used for toggle select all
+            lblTag.appendChild(labelTxt);
+            ulTag.appendChild(liClone);
+            j++;
+        });
+
+        container.appendChild(ulClone);
+    }
+
+    return container;
+}
+
+const selectionData = (container = null, keys = null, keysLength = 0) => {
+    let sessionData = {};
+    let ulTags = container.querySelectorAll("ul");
+
+    for (let i = 0; i < keysLength; i++) {
+        let links = [];
+
+        for (var ii = 0; ii < ulTags[i].children.length; ii++) {
+            let li = ulTags[i].children[ii];
+            if (li.children[0].checked) {
+                links.push(
+                    {"link" : li.children[1].innerText.trim()}
+                );
+            }
+        }
+
+        if (links.length > 0) {
+            sessionData[keys[i]] = links;
+        }
+    }
+
+    return sessionData;
+}

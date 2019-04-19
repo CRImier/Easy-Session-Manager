@@ -1,9 +1,9 @@
 let selectedItem = null;
 
-const toggleSelect = (name) => {
+const toggleSelect = (source, name) => {
     let checkboxes = document.getElementsByName(name);
     for (var i = 0; i < checkboxes.length; i++) {
-        checkboxes[i].checked = !checkboxes[i].checked;
+        checkboxes[i].checked = source.checked;
     }
 }
 
@@ -59,7 +59,7 @@ document.addEventListener("dblclick", (e) => {
             selectedItem = e.target;
             selectedItem.setAttribute("class", "sessionLI selected");
             try {
-                let id = e.target.innerHTML.trim();
+                let id = e.target.innerText.trim();
                 storage.get(id).then(storageResults => {
                     let json          = JSON.parse(storageResults[id]);
                     let keys          = Object.keys(json);
@@ -70,71 +70,13 @@ document.addEventListener("dblclick", (e) => {
                     if (!selectiveOpen.checked) {
                         loadSession(json, replaceTabs.checked);
                     } else {
-                        let container  = document.createElement("DIV");
-                        let ulTemplate = document.querySelector('#ulTemplate');
-                        let liTemplate = document.querySelector('#liTemplate');
-
-                        for (let i = 0; i < keysLength; i++) {
-                            let ulClone      = document.importNode(ulTemplate.content, true);
-                            let ulTag        = ulClone.querySelector('.collection');
-                            let selAll       = ulClone.querySelector('input');
-                            let h2Tag        = ulClone.querySelector('.ulHeader');
-                            let ulLblTag     = ulClone.querySelector('label');
-                            let h2Txt        = document.createTextNode("Window: " + (i + 1));
-                            let store        = json[keys[i]];
-                            let  j           = 0;
-
-                            container.id     = "editSelectionContainer";
-                            selAll.id        = "selectAllWin" + i;
-                            ulLblTag.htmlFor = "selectAllWin" + i;
-                            selAll.addEventListener("click", function () {
-                                toggleSelect("Win" + i);
-                            });
-                            h2Tag.appendChild(h2Txt);
-
-                            store.forEach(tab => {
-                                let liClone    = document.importNode(liTemplate.content, true);
-                                let inptTag    = liClone.querySelector("input");
-                                let lblTag     = liClone.querySelector("label");
-                                let labelTxt   = document.createTextNode(tab.link);
-                                inptTag.id     = "Win" + i + "Li" + j;
-                                lblTag.htmlFor = "Win" + i + "Li" + j;
-                                lblTag.title   = tab.link;
-                                inptTag.setAttribute("name", "Win" + i);
-                                lblTag.appendChild(labelTxt);
-                                ulTag.appendChild(liClone);
-                                j++;
-                            });
-
-                            container.appendChild(ulClone);
-                        }
-
+                        let container = selectionWindow(json, keys, keysLength);
                         swal("Selective Open", {
                                 content: container,
                                 buttons: true,
                         }).then((willOpen) => {
                             if (willOpen) {
-                                let sessionData = {};
-                                let ulTags = container.querySelectorAll("ul");
-
-                                for (let i = 0; i < keysLength; i++) {
-                                    let links = [];
-
-                                    for (var ii = 0; ii < ulTags[i].children.length; ii++) {
-                                        let li = ulTags[i].children[ii];
-                                        if (li.children[0].checked) {
-                                            links.push(
-                                                {"link" : li.children[1].title.trim()}
-                                            );
-                                        }
-                                    }
-
-                                    if (links.length > 0) {
-                                        sessionData[keys[i]] = links;
-                                    }
-                                }
-
-                                json = sessionData;
+                                json = selectionData(container, keys, keysLength);
                                 keysLength = Object.keys(json).length;
                                 if (keysLength > 0) {
                                     loadSession(json, replaceTabs.checked);
