@@ -3,7 +3,7 @@ const windowSys    = browser.windows;
 const regexp       = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 
 
-const saveSession = (elm = null, message = "Session Name\nAllowed: a-z, A-Z, 0-9, -, _") => {
+const saveSession = (elm = null, message = "[ Session Name ] Allowed: a-z, A-Z, 0-9, -, _") => {
     let inputTag   = document.createElement("INPUT");
     inputTag.value = new Date().toLocaleString().split(',')[0].replace(/\//g, '-');
 
@@ -32,6 +32,7 @@ const saveSession = (elm = null, message = "Session Name\nAllowed: a-z, A-Z, 0-9
         swal(message, {
             content: container,
             buttons: true,
+            customClass: 'swal-modal',
         }).then((value) => {
             if (value) {
                 let enteryName = inputTag.value.replace(/ /g, "_");
@@ -82,6 +83,7 @@ const editSession = (elm = null, message = "Editing selected session...\nAllowed
         swal(message, {
             content: container,
             buttons: true,
+            customClass: 'swal-modal',
         }).then((value) => {
             if (value) {
                 let newName = inputTag.value.replace(/ /g, "_");
@@ -157,6 +159,7 @@ const downloadSession = (elm = null) => {
     swal("Download Session?", {
             content: pTag,
             buttons: true,
+            customClass: 'swal-modal',
     }).then((willDl) => {
         if (willDl) {
             if (chkBoxTag.checked) {

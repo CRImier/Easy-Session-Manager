@@ -1,7 +1,7 @@
 body {
-    width: 450px;
-    height: 520px;
-    overflow-x: hidden;
+    width: 800px;
+    height: 600px;
+    overflow: hidden;
 }
 
 ul, li { list-style: none; }
@@ -21,19 +21,18 @@ input[type=image]:hover {
 }
 
 #savedSessions {
-    height: 365px;
-    min-height: 365x;
-    max-height: 365px;
+    width: 85%;
+    height: 450px;
+    min-height: 450px;
+    max-height: 450px;
     overflow-x: hidden;
     overflow-y: auto;
-    margin-bottom: 0.6em;
-    margin-top: 0.6em;
+    margin: 0em auto;
 }
 
 #editSelectionContainer {
-    height: 315px;
-    min-height: 315px;
-    max-height: 315px;
+    width: 100%;
+    height: auto;
     white-space: nowrap;
     display: block;
     overflow-x: auto;
@@ -60,6 +59,13 @@ input[type=image]:hover {
     top: 48%;
     margin: 0 auto;
     color: rgba(255, 255, 255, 0.5);
+}
+
+/* Overide sweetalert modal size */
+.swal-modal{
+    top: 2em !important;
+    width: 650px !important;
+    height: auto !important;
 }
 
 .collection {

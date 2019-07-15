@@ -9,6 +9,7 @@ const processor = (obj, enteryName = '',
     swal(message, {
         content: inputTag,
         buttons: true,
+        customClass: 'swal-modal',
     }).then((value) => {
         if (value) {
             enteryName = inputTag.value.replace(/ /g, "_");
