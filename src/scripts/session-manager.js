@@ -49,14 +49,14 @@ const saveSession = (elm = null, message = message1) => {
 const editSession = (elm = null, message = message1) => {
     let id             = elm.innerText;
     let inputTag       = document.createElement("INPUT");
-    let newSessionCheckTag     = document.createElement("INPUT");
+    let newSessionTag     = document.createElement("INPUT");
     let labelTag       = document.createElement("LABEL");
     let brTag          = document.createElement("BR");
 
     inputTag.value     = id;
-    newSessionCheckTag.type    = "checkbox";
-    newSessionCheckTag.id      = "newSession";
-    newSessionCheckTag.checked = false;
+    newSessionTag.type    = "checkbox";
+    newSessionTag.id      = "newSession";
+    newSessionTag.checked = false;
     labelTag.innerText = "Create New Session";
     labelTag.htmlFor   = "newSession";
 
@@ -66,7 +66,7 @@ const editSession = (elm = null, message = message1) => {
         let keysLength  = Object.keys(json).length;
         let container   = generateSelectionWindow(json, keys, keysLength);
         container.prepend(labelTag);
-        container.prepend(newSessionCheckTag);
+        container.prepend(newSessionTag);
         container.prepend(brTag);
         container.prepend(inputTag);
 
@@ -85,30 +85,28 @@ const editSession = (elm = null, message = message1) => {
                 }
 
                 json = getSelectionData(container, keys, keysLength);
-                // If creating from collection new session
-                if (newSessionCheckTag.checked) {
-                    if (newName !== elm.innerText) {
-                        newName = checkSessionListForDuplicate(newName);
-                        saveToStorage(newName, JSON.stringify(json), "save");
-                    } else { // Enforce unique name
-                        let min    = 1;
-                        let max    = 200000;
-                        var random = Math.floor(Math.random() * (+max - +min)) + +min;
-                        newName += "-" + random + "-" + Math.floor(Math.random() * (+10 - +1)) + +1;
-                        saveToStorage(newName, JSON.stringify(json), "edit");
-                    }
+
+                // If creating new session
+                if (newSessionTag.checked) {
+                    newName = checkSessionListForDuplicate(newName);
+                    saveToStorage(newName, JSON.stringify(json), "save");
                 } else {
-                    // If not creating new session and diff name enforced; generate new name
-                    if (newName !== elm.innerText) {
-                        newName = checkSessionListForDuplicate(newName);
+                    // If not creating new session and are the same name
+                    if (newName == id) {
                         storageApi.get(id).then((results) => {
                             storageApi.remove(id);
+                            saveToStorage(newName, JSON.stringify(json), "edit", true);
+                        }).then(() => {
+                            elm.innerText = newName;
+                        });
+                    } else { // If not creating new session and names are not the same rename
+                        storageApi.get(id).then((results) => {
+                            storageApi.remove(id);
+                            newName = checkSessionListForDuplicate(newName);
                             saveToStorage(newName, JSON.stringify(json), "edit");
                         }).then(() => {
-                            elm.textContent = newName;
+                            elm.innerText = newName;
                         });
-                    } else { // Replace found session
-                        saveToStorage(newName, JSON.stringify(json), "edit", true);
                     }
                 }
             } else {
