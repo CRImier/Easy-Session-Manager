@@ -73,6 +73,21 @@ const appendToSavedSessionsList = (enteryName, storeSize) => {
 
 // Generics
 
+const getStoreSize = (session) => {
+    let count = 0;
+    try {
+        const json  = JSON.parse(session);
+        const keys  = Object.keys(json);
+        keys.forEach(key => {
+            count += json[key].length;
+
+        });
+        return count;
+    } catch (e) { }
+
+    return count;
+}
+
 const getSessionData = (windows) => {
     let sessionData = {};
     for (let i = 0; i < windows.length; i++) {

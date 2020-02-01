@@ -32,13 +32,13 @@ const saveSession = (elm = null, name = null, message = message1) => {
                 let enteryName = inputTag.value.replace(/ /g, "_");
 
                 if (enteryName.length < 0 || enteryName.length > 54 || enteryName.search(regexp) == -1) {
-                    saveSession(elm, message2);
+                    saveSession(elm, name, message2);
                     return ;
                 }
 
                 console.log("Saving session...");
                 sessionData = getSelectionData(container, keys, keysLength);
-                saveToStorage(enteryName, JSON.stringify(sessionData), "save", willReplace);
+                saveToStorage(enteryName, JSON.stringify(sessionData), "save", willReplace, elm);
             } else {
                 messageWindow("warning", "Canceled save...");
             }
@@ -61,9 +61,17 @@ const editSession = (elm = null, name = null, message = message1) => {
     labelTag.htmlFor      = "newSession";
 
     storageApi.get(id).then((results) => {
-        let json        = JSON.parse(results[id]);
-        let keys        = Object.keys(json);
-        let keysLength  = Object.keys(json).length;
+        let json        = null;
+        let keys        = null;
+        let keysLength  = null;
+
+        try {
+            json        = JSON.parse(results[id]);
+            keys        = Object.keys(json);
+            keysLength  = Object.keys(json).length;
+        } catch (e) {
+                messageWindow("warning", "Canceled edit; couldn't load any data...");
+        }
         let container   = generateSelectionWindow(json, keys, keysLength);
         container.prepend(labelTag);
         container.prepend(newSessionTag);
@@ -80,26 +88,35 @@ const editSession = (elm = null, name = null, message = message1) => {
                 let newName = inputTag.value.replace(/ /g, "_");
 
                 if (newName.length < 0 || newName.length > 54 || newName.search(regexp) == -1) {
-                    editSession(elm, message2);
+                    editSession(elm, name, message2);
                     return ;
                 }
 
-                json = getSelectionData(container, keys, keysLength);
+                json          = getSelectionData(container, keys, keysLength);
+                const strData = JSON.stringify(json);
                 if (newSessionTag.checked) { // If creating new session
-                    newName = checkSessionListForDuplicate(newName);
-                    saveToStorage(newName, JSON.stringify(json), "save");
+                    newName   = checkSessionListForDuplicate(newName);
+                    saveToStorage(newName, strData, "save", false, elm);
                 } else {
                     if (newName == name) { // If not creating new session and are the same name
                         storageApi.get(id).then((results) => {
                             storageApi.remove(id);
-                            saveToStorage(newName, JSON.stringify(json), "edit", true);
-                        }).then(() => { elm.innerText = newName; });
+                            saveToStorage(newName, strData, "edit", true, elm);
+                        }).then(() => {
+                            const size = getStoreSize(strData);
+                            elm.innerText = size + "  |  " + newName;
+                            elm.setAttribute("name", newName);
+                        });
                     } else { // If not creating new session and names are not the same rename
                         storageApi.get(id).then((results) => {
-                            storageApi.remove(id);
                             newName = checkSessionListForDuplicate(newName);
-                            saveToStorage(newName, JSON.stringify(json), "edit");
-                        }).then(() => { elm.innerText = newName; });
+                            storageApi.remove(id);
+                            saveToStorage(newName, strData, "edit", false, elm);
+                        }).then(() => {
+                            const size = getStoreSize(strData);
+                            elm.innerText = size + "  |  " + newName;
+                            elm.setAttribute("name", newName);
+                        });
                     }
                 }
             } else {

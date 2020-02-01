@@ -29,7 +29,7 @@ document.addEventListener("click", (e) => {
                 if (action == "download")
                     downloadSession(selectedItemName);
                 else if (action == "delete")
-                    deleteFromStorage(selectedItem);
+                    deleteFromStorage(selectedItem, selectedItemName);
                 else if (action == "edit")
                     editSession(selectedItem, selectedItemName);
             } else {
@@ -49,7 +49,7 @@ document.addEventListener("dblclick", (e) => {
     if (e.button == 0) {  // Left click
         if (e.target.tagName == "LI" && e.target.className.includes("sessionLI")) {
             selectedItem = e.target;
-            const id     = selectedItem.innerText.trim();
+            const id     = selectedItem.getAttribute("name");
             selectedItem.setAttribute("class", "sessionLI selected");
             preLoadSession(id);
         }
