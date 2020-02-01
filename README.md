@@ -4,8 +4,8 @@ Easy Session Manager allows you to manage your Firefox session by backing up or 
 # Download
 https://addons.mozilla.org/en-US/firefox/addon/easy-session-manager/
 
-# Version: 0.2.1.3
-Improved width of SweetAlert windows.
+# Version: 0.2.1.0
+Refactored code and added tab count per session.
 
 # Images
 ![1 Default interface with no sessions. ](images/pic1.png)

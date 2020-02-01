@@ -1,95 +1,9 @@
-const messageWindow = (type = "warning", message = "No message passed in...") => {
-    swal(message, { icon: type, });
-}
+let selectedItem = null;
 
-const getSavedSessionIDs = () => {
-    console.log("Getting saved sessions...");
-    storage.get(null).then((storageResults) => {
-        let keys = Object.keys(storageResults);
-        for (let key of keys) {
-            appendToSavedSessionsList(key);
-        }
-    });
-}
-
-const appendToSavedSessionsList = (enteryName) => {
-    let liTag   = document.createElement("LI");
-    let text    = document.createTextNode(enteryName.trim());
-    liTag.setAttribute("name", enteryName.trim());
-    liTag.className = "sessionLI";
-    liTag.append(text);
-    document.getElementById("savedSessions").append(liTag);
-}
-
-
-const checkSessionListForDuplicate = (newName) => {
-    let sessions = document.getElementById("savedSessions").querySelectorAll("li");
-    for (var i = 0; i < sessions.length; i++) {
-        if (sessions[i].innerText === newName) {
-            let min    = 1;
-            let max    = 200000;
-            var random = Math.floor(Math.random() * (+max - +min)) + +min;
-            newName += "-" + random + "-" + Math.floor(Math.random() * (+10 - +1)) + +1;
-        }
-    }
-    return newName;
-}
-
-const windowMaker = (i, keysLength, keys, json) => {
-    for (; i < keysLength; i++) {
-        let store = json[keys[i]];
-        let urls  = [];
-
-        for (let j = 0; j < store.length; j++) {
-            urls.push(store[j].link);
-        }
-        windowSys.create({ url: urls });
-    }
-}
-
-const saveToStorage = (name, data, fromEdit = false) => {
-    storage.get(name).then((storageResults) => {
-        let json = null;
-        try {
-            json = JSON.parse(storageResults[name]);
-            messageWindow("warning", "Overwrote session...");
-        } catch (e) {
-            if (fromEdit) {  // minor logic fix
-                messageWindow("warning", "Overwrote session...");
-            } else {
-                appendToSavedSessionsList(name);
-                messageWindow("success", "Saved session...");
-            }
-        } finally {
-            storage.set({[name]: data});
-        }
-    });
-}
-
-const deleteFromStorage = (elm = null) => {
-    swal({
-        title: "Are you sure?",
-        text: "Do you wish to delete session:\n" + elm.innerText + "?",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true,
-    }).then((willDelete) => {
-        if (willDelete) {
-            storage.remove(elm.innerText).then(() => {
-                elm.parentElement.removeChild(elm);
-            });
-            selectedItem = null; // reset selectedItem
-            messageWindow("success", "Deleted session successfully...");
-        } else {
-            messageWindow("warning", "Canceled deletion...");
-        }
-    });
-}
-
+// UI supporters
 
 /*    Selection Process    */
-
-const selectionWindow = (json = "", keys = null, keysLength = 0) => {
+const generateSelectionWindow = (json = "", keys = null, keysLength = 0) => {
     let container  = document.createElement("DIV");
     let ulTemplate = document.querySelector('#ulTemplate');
     let liTemplate = document.querySelector('#liTemplate');
@@ -132,7 +46,50 @@ const selectionWindow = (json = "", keys = null, keysLength = 0) => {
     return container;
 }
 
-const selectionData = (container = null, keys = null, keysLength = 0) => {
+const checkSessionListForDuplicate = (newName) => {
+    let sessions = document.getElementById("savedSessions").querySelectorAll("li");
+    for (var i = 0; i < sessions.length; i++) {
+        if (sessions[i].innerText === newName) {
+            let min    = 1;
+            let max    = 200000;
+            let random = Math.floor(Math.random() * (+max - +min)) + +min;
+            newName += "-" + random + "-" + Math.floor(Math.random() * (+10 - +1)) + +1;
+        }
+    }
+    return newName;
+}
+
+const appendToSavedSessionsList = (enteryName) => {
+    let liTag       = document.createElement("LI");
+    let text        = document.createTextNode(enteryName.trim());
+    liTag.className = "sessionLI";
+
+    liTag.setAttribute("name", enteryName.trim());
+    liTag.append(text);
+    document.getElementById("savedSessions").append(liTag);
+}
+
+
+
+// Generics
+
+const getSessionData = (windows) => {
+    let sessionData = {};
+    for (let i = 0; i < windows.length; i++) {
+        let links = [];
+        for (var ii = 0; ii < windows[i].tabs.length; ii++) {
+            if (!windows[i].tabs[ii].url.includes("about:")) {
+                links.push(
+                    {"link" : windows[i].tabs[ii].url.trim()}
+                );
+            }
+        }
+        sessionData["WindowID:" + windows[i].id] = links;
+    }
+    return sessionData;
+}
+
+const getSelectionData = (container = null, keys = null, keysLength = 0) => {
     let sessionData = {};
     let ulTags = container.querySelectorAll("ul");
 
@@ -154,4 +111,29 @@ const selectionData = (container = null, keys = null, keysLength = 0) => {
     }
 
     return sessionData;
+}
+
+const doUrlAction = (url = "https://www.paypal.me/ITDominator", fileName = "", isDownload = false) => {
+    let aTagElm = document.getElementById('downloadAnchorElem');
+    aTagElm.setAttribute("href", url);
+
+    if (isDownload)
+        aTagElm.setAttribute("download", fileName);
+
+    aTagElm.setAttribute("_blank", "");
+    aTagElm.click();
+}
+
+const importSession = () => {
+    browser.tabs.create({
+      url: browser.extension.getURL("../pages/import.html"),
+      active: true
+    });
+}
+
+const toggleSelect = (source, name) => {
+    let checkboxes = document.getElementsByName(name);
+    for (let i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = source.checked;
+    }
 }

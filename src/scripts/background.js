@@ -1,7 +1,7 @@
-const regexp = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
+const message1 = "What is this session's name? Allowed: a-z, A-Z, -, _";
+const regexp   = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 
-const processor = (obj, enteryName = '',
-                   message  = "What is this session's name? Allowed: a-z, A-Z, -, _") => {
+const processor = (obj, enteryName = '', message = message1) => {
     let data       = obj.target.result;
     let inputTag   = document.createElement("INPUT");
     inputTag.value = enteryName;
@@ -13,29 +13,24 @@ const processor = (obj, enteryName = '',
     }).then((value) => {
         if (value) {
             enteryName = inputTag.value.replace(/ /g, "_");
-            if (enteryName) {
-                if (enteryName.search(regexp) == -1) {
-                    processor(obj, enteryName, "Please try again...\nAllowed: a-z, A-Z, -, _")
-                    return ;
-                }
 
-                try {
-                    console.log("Importing session...");
-                    JSON.parse(data);
-                    browser.storage.local.set({[enteryName]: data});
-                    swal("Imported file successfully.", {
-                        icon: "success",
-                    });
-                } catch (e) {
-                    swal("Failed to import data. Not a JSON parsable file.", {
-                        icon: "error",
-                    });
-                    return ;
-                }
-            } else {
-                swal("Canceled import.", {
-                    icon: "warning",
+            if (enteryName.length < 0 || enteryName.length > 54 || enteryName.search(regexp) == -1) {
+                processor(obj, "", "Allowed: a-z, A-Z, 0-9, -, _ Please try again...\nName too long or none provided; or, unacceptable character used.");
+                return ;
+            }
+
+            try {
+                console.log("Importing session...");
+                JSON.parse(data);
+                browser.storage.local.set({[enteryName]: data});
+                swal("Imported file successfully.", {
+                    icon: "success",
                 });
+            } catch (e) {
+                swal("Failed to import data. Not a JSON parsable file.", {
+                    icon: "error",
+                });
+                return ;
             }
         } else {
             swal("Canceled import.", {
