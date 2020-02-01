@@ -1,4 +1,4 @@
-const message1 = "[ Session Name ] Allowed: a-z, A-Z, 0-9, -, _";
+const message1    = "[ Session Name ] Allowed: a-z, A-Z, 0-9, -, _";
 const message2    = "Allowed: a-z, A-Z, 0-9, -, _ Please try again...\nName too long or none provided; or, unacceptable character used.";
 const storageApi  = browser.storage.local;
 const tabsApi     = browser.tabs;
@@ -6,13 +6,13 @@ const windowApi   = browser.windows;
 const regexp      = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 
 
-const saveSession = (elm = null, message = message1) => {
+const saveSession = (elm = null, name = null, message = message1) => {
     let inputTag    = document.createElement("INPUT");
     let willReplace = false;
     inputTag.value  = new Date().toLocaleString().split(',')[0].replace(/\//g, '-');
 
     if (elm !== null) {
-        inputTag.value = elm.innerText;
+        inputTag.value = name;
         willReplace    = true;
     }
 
@@ -46,19 +46,19 @@ const saveSession = (elm = null, message = message1) => {
     });
 }
 
-const editSession = (elm = null, message = message1) => {
-    let id             = elm.innerText;
-    let inputTag       = document.createElement("INPUT");
+const editSession = (elm = null, name = null, message = message1) => {
+    let id                = name;
+    let inputTag          = document.createElement("INPUT");
     let newSessionTag     = document.createElement("INPUT");
-    let labelTag       = document.createElement("LABEL");
-    let brTag          = document.createElement("BR");
+    let labelTag          = document.createElement("LABEL");
+    let brTag             = document.createElement("BR");
 
-    inputTag.value     = id;
+    inputTag.value        = id;
     newSessionTag.type    = "checkbox";
     newSessionTag.id      = "newSession";
     newSessionTag.checked = false;
-    labelTag.innerText = "Create New Session";
-    labelTag.htmlFor   = "newSession";
+    labelTag.innerText    = "Create New Session";
+    labelTag.htmlFor      = "newSession";
 
     storageApi.get(id).then((results) => {
         let json        = JSON.parse(results[id]);
@@ -85,28 +85,21 @@ const editSession = (elm = null, message = message1) => {
                 }
 
                 json = getSelectionData(container, keys, keysLength);
-
-                // If creating new session
-                if (newSessionTag.checked) {
+                if (newSessionTag.checked) { // If creating new session
                     newName = checkSessionListForDuplicate(newName);
                     saveToStorage(newName, JSON.stringify(json), "save");
                 } else {
-                    // If not creating new session and are the same name
-                    if (newName == id) {
+                    if (newName == name) { // If not creating new session and are the same name
                         storageApi.get(id).then((results) => {
                             storageApi.remove(id);
                             saveToStorage(newName, JSON.stringify(json), "edit", true);
-                        }).then(() => {
-                            elm.innerText = newName;
-                        });
+                        }).then(() => { elm.innerText = newName; });
                     } else { // If not creating new session and names are not the same rename
                         storageApi.get(id).then((results) => {
                             storageApi.remove(id);
                             newName = checkSessionListForDuplicate(newName);
                             saveToStorage(newName, JSON.stringify(json), "edit");
-                        }).then(() => {
-                            elm.innerText = newName;
-                        });
+                        }).then(() => { elm.innerText = newName; });
                     }
                 }
             } else {
@@ -116,7 +109,7 @@ const editSession = (elm = null, message = message1) => {
     });
 }
 
-const downloadSession = (elm = null) => {
+const downloadSession = (session = null) => {
     let pTag       = document.createElement("P");
     let inputTag   = document.createElement("INPUT");
     let chkBoxTag  = document.createElement("INPUT");
@@ -124,9 +117,8 @@ const downloadSession = (elm = null) => {
     let brTag      = document.createElement("BR");
     let aTagElm    = document.getElementById('downloadAnchorElem');
     let text       = document.createTextNode("Append Date?");
-    let id         = elm.innerText;
-    let fileName   = "session:" + id + ".json";
-
+    let fileName   = "session:" + session + ".json";
+    let id         = session;
     chkBoxTag.type = "checkbox";
     inputTag.value = fileName;
     chkBoxTag.id   = "chkbx";
@@ -144,14 +136,15 @@ const downloadSession = (elm = null) => {
     }).then((willDl) => {
         if (willDl) {
             if (chkBoxTag.checked) {
-                fileName = "session:" + id + ":" +
-                     new Date().toLocaleString().split(',')[0].replace(/\//g, "-") + ".json";
+                fileName = "session:" + id + ":" + new Date().toLocaleString()
+                                                            .split(',')[0]
+                                                            .replace(/\//g, "-") + ".json";
             }
 
             storageApi.get(id).then((results) => {
                 let json    = JSON.parse(results[id]);
-                console.log("Downloading: " + id);
                 let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+                console.log("Downloading: " + id);
                 doUrlAction(dataStr, fileName, true);
             });
         }

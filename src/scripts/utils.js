@@ -59,12 +59,12 @@ const checkSessionListForDuplicate = (newName) => {
     return newName;
 }
 
-const appendToSavedSessionsList = (enteryName) => {
+const appendToSavedSessionsList = (enteryName, storeSize) => {
+    const text      = document.createTextNode(storeSize + "  |  " + enteryName);
     let liTag       = document.createElement("LI");
-    let text        = document.createTextNode(enteryName.trim());
     liTag.className = "sessionLI";
 
-    liTag.setAttribute("name", enteryName.trim());
+    liTag.setAttribute("name", enteryName);
     liTag.append(text);
     document.getElementById("savedSessions").append(liTag);
 }

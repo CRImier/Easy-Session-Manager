@@ -4,9 +4,9 @@ const messageWindow = (type = "warning", message = "No message passed in...") =>
 
 const getSavedSessionIDs = () => {
     storageApi.get(null).then((results) => {
-        let keys = Object.keys(results);
-        for (let key of keys) {
-            appendToSavedSessionsList(key);
+        const sessions = Object.keys(results);
+        for (let session of sessions) {
+            appendToSavedSessionsList(session);
         }
     });
 }
