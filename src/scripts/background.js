@@ -1,17 +1,36 @@
 const message1 = "What is this session's name? Allowed: a-z, A-Z, -, _";
 const regexp   = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
 
+const messageWindow = (type = "warning", message = "No message passed in...") => {
+    Swal.fire({
+        text: message,
+        icon: type
+    });
+}
+
 const processor = (obj, enteryName = '', message = message1) => {
     let data       = obj.target.result;
     let inputTag   = document.createElement("INPUT");
+
+    let pTag       = document.createElement("P");
+    let brTag      = document.createElement("BR");
+    let textTag    = document.createTextNode(message);
+
     inputTag.value = enteryName;
 
-    swal(message, {
-        content: inputTag,
-        buttons: true,
-        customClass: 'swal-modal',
-    }).then((value) => {
-        if (value) {
+    pTag.append(textTag);
+    pTag.appendChild(brTag);
+    pTag.appendChild(inputTag);
+
+     Swal.fire({
+         title: "Session Name:",
+         text: message,
+         html: pTag,
+         showCloseButton: true,
+         showCancelButton: true,
+         customClass: 'swal-modal',
+    }).then((result) => {
+        if (result.value) {
             enteryName = inputTag.value.replace(/ /g, "_");
 
             if (enteryName.length < 0 || enteryName.length > 54 || enteryName.search(regexp) == -1) {
@@ -21,21 +40,15 @@ const processor = (obj, enteryName = '', message = message1) => {
 
             try {
                 console.log("Importing session...");
-                JSON.parse(data);
+                JSON.parse(data); // See if parsing fails and throw error
                 browser.storage.local.set({[enteryName]: data});
-                swal("Imported file successfully.", {
-                    icon: "success",
-                });
+                messageWindow("success", "Imported file successfully.");
             } catch (e) {
-                swal("Failed to import data. Not a JSON parsable file.", {
-                    icon: "error",
-                });
+                messageWindow("error", "Failed to import data. Not a JSON parsable file.");
                 return ;
             }
         } else {
-            swal("Canceled import.", {
-                icon: "warning",
-            });
+            messageWindow("warning", "Canceled import.");
         }
     });
 };

@@ -1,5 +1,8 @@
 const messageWindow = (type = "warning", message = "No message passed in...") => {
-    swal(message, { icon: type, });
+    Swal.fire({
+        text: message,
+        icon: type
+    });
 }
 
 const getSavedSessionIDs = () => {
@@ -20,15 +23,14 @@ const saveToStorage = (name, data, action = "undefined", willReplace = false, sv
         try {
             const json = JSON.parse(results[name]); // If a session is found
             if (!willReplace) {
-                swal({
+                 Swal.fire({
                     title: "Replace?",
                     text: "Found a session with that name! Do you want to replace it?",
                     icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
+                    showCloseButton: true,
+                    showCancelButton: true,
                 }).then((willReplace) => {
-                    if (willReplace) {
-                        console.log("door 1");
+                    if (willReplace.value) {
                         storageApi.set({[name]: data});
                         sveElm.innerText = size + "  |  " + name;
                         sveElm.name      = name;
@@ -57,14 +59,14 @@ const saveToStorage = (name, data, action = "undefined", willReplace = false, sv
 }
 
 const deleteFromStorage = (elm = null, name = null) => {
-    swal({
+     Swal.fire({
         title: "Are you sure?",
         text: "Do you wish to delete session:\n" + name + "?",
         icon: "warning",
-        buttons: true,
-        dangerMode: true,
+        showCloseButton: true,
+        showCancelButton: true,
     }).then((willDelete) => {
-        if (willDelete) {
+        if (willDelete.value) {
             storageApi.remove(name).then(() => {
                 elm.parentElement.removeChild(elm);
             });

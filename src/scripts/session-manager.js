@@ -21,14 +21,20 @@ const saveSession = (elm = null, name = null, message = message1) => {
         let keys        = Object.keys(sessionData);
         let keysLength  = Object.keys(sessionData).length;
         let container   = generateSelectionWindow(sessionData, keys, keysLength);
-        container.prepend(inputTag);
+        let textTag     = document.createTextNode(message);
+        let brTag       = document.createElement("BR");
 
-        swal(message, {
-            content: container,
-            buttons: true,
-            customClass: 'swal-modal',
-        }).then((value) => {
-            if (value) {
+        container.prepend(inputTag);
+        container.prepend(brTag);
+        container.prepend(message);
+
+         Swal.fire({
+             html: container,
+             showCloseButton: true,
+             showCancelButton: true,
+             customClass: 'swal-modal',
+        }).then((result) => {
+            if (result.value) {
                 let enteryName = inputTag.value.replace(/ /g, "_");
 
                 if (enteryName.length < 0 || enteryName.length > 54 || enteryName.search(regexp) == -1) {
@@ -52,6 +58,7 @@ const editSession = (elm = null, name = null, message = message1) => {
     let newSessionTag     = document.createElement("INPUT");
     let labelTag          = document.createElement("LABEL");
     let brTag             = document.createElement("BR");
+    let brTag2            = document.createElement("BR");
 
     inputTag.value        = id;
     newSessionTag.type    = "checkbox";
@@ -71,20 +78,27 @@ const editSession = (elm = null, name = null, message = message1) => {
             keysLength  = Object.keys(json).length;
         } catch (e) {
                 messageWindow("warning", "Canceled edit; couldn't load any data...");
+                return ;
         }
+
         let container   = generateSelectionWindow(json, keys, keysLength);
+        let textTag     = document.createTextNode(message);
+
         container.prepend(labelTag);
         container.prepend(newSessionTag);
         container.prepend(brTag);
         container.prepend(inputTag);
+        container.prepend(brTag2);
+        container.prepend(message);
 
         console.log("Editing session...");
-        swal(message, {
-            content: container,
-            buttons: true,
-            customClass: 'swal-modal',
-        }).then((value) => {
-            if (value) {
+         Swal.fire({
+             html: container,
+             showCloseButton: true,
+             showCancelButton: true,
+             customClass: 'swal-modal',
+        }).then((result) => {
+            if (result.value) {
                 let newName = inputTag.value.replace(/ /g, "_");
 
                 if (newName.length < 0 || newName.length > 54 || newName.search(regexp) == -1) {
@@ -146,12 +160,14 @@ const downloadSession = (session = null) => {
     pTag.append(brTag);
     pTag.append(inputTag);
 
-    swal("Download Session?", {
-            content: pTag,
-            buttons: true,
-            customClass: 'swal-modal',
+     Swal.fire({
+         text: "Download Session?",
+         html: pTag,
+         showCloseButton: true,
+         showCancelButton: true,
+         customClass: 'swal-modal',
     }).then((willDl) => {
-        if (willDl) {
+        if (willDl.value) {
             if (chkBoxTag.checked) {
                 fileName = "session:" + id + ":" + new Date().toLocaleString()
                                                             .split(',')[0]
@@ -181,11 +197,13 @@ const preLoadSession = (id) => {
                 loadSession(json, replaceTabs.checked);
             } else {
                 let container = generateSelectionWindow(json, keys, keysLength);
-                swal("Selective Open", {
-                    content: container,
-                    buttons: true,
+                 Swal.fire({
+                     text: "Selective Open",
+                     html: container,
+                     showCloseButton: true,
+                     showCancelButton: true,
                 }).then((willOpen) => {
-                    if (willOpen) {
+                    if (willOpen.value) {
                         json = getSelectionData(container, keys, keysLength);
                         keysLength = Object.keys(json).length;
                         if (keysLength > 0) {
