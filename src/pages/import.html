@@ -4,32 +4,74 @@
     <meta charset="utf-8">
     <title>Easy Session Manager Import</title>
     <link rel="shortcut icon" href="../images/icons/import.png">
+
+    <!-- Mustard UI CSS -->
+    <link rel="stylesheet" href="../styles/libs/mustard-ui.min.css"/>
+
+    <!-- App CSS -->
     <link rel="stylesheet" href="../styles/styles.css"/>
 
+
 <style media="screen">
-
-body, html {
-    width: 100%;
-    height: 100%;
-    padding: 0em;
-    margin: 0em;
-}
-
+    body, html {
+        width: 100%;
+        height: 100%;
+        padding: 0em;
+        margin: 0em;
+    }
 </style>
 
 </head>
 <body>
 
-    <div class="container" name="import">
+    <div class="download-container" name="import">
         <h1 id="lableTag">Select File</h1>
-        <input id="inputId" type="file" enctype='multipart/form-data' multiple accept="application/json"/>
+        <input id="inputId" type="file" enctype='multipart/form-data' accept="application/json"/>
+
+        <!-- FIXME: Broke multiple imports because of event setup. Need a way to popup modals and process through linearly -->
+        <!-- <input id="inputId" type="file" enctype='multipart/form-data' multiple accept="application/json"/> -->
     </div>
 
-    <span id="allertMessage">
+    <!-- Message Gutter -->
+    <div id="master-gutter" class="row">
+        <div class="col">
+            <div id="message-gutter" class="scroller">
+            </div>
+        </div>
+    </div>
 
-    </span>
 
-<script src="../scripts/libs//sweetalert2.all.js"></script>
+    <!-- Save Modal -->
+    <div id="saveModal" class="modal-mask" style="display:none; opacity: 0%;">
+        <div class="modal">
+            <div class="modal-head">
+                <p class="modal-title">Save - Allowed: a-z, A-Z, 0-9, -, _</p>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <p>What is this session's name?</p>
+                        <p name="toSaveImportErrMessage"></p>
+                        <input type="text" name="toSaveNameImport" value="">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div id="modal-gutter" class="scroller">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer align-right">
+                <button class="button-secondary" name="closeImportSave">Close</button>
+                <button class="button-primary" name="importSave">OK</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
 <script src="../scripts/background.js"></script>
 </body>
 </html>

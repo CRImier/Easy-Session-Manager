@@ -1,6 +1,42 @@
 let selectedItem = null;
 
+
+const messageWindow = (type = "warning", message = "No message passed in...", target = "") => {
+    let pTag   = document.createElement("P");
+    let text   = document.createTextNode(message);
+    let gutter = document.getElementById("message-gutter");
+
+    if (target !== "") {
+        gutter = document.getElementById(target);
+    }
+
+    pTag.className = "alert alert-" + type;
+    pTag.appendChild(text);
+    gutter.prepend(pTag);
+
+    setTimeout(function () {
+        clearChildNodes(gutter);
+    }, 3200);
+}
+
+
+
+
 // UI supporters
+
+const loadContainer = (sessionData, keys, keysLength, divID) => {
+    let container   = generateSelectionWindow(sessionData, keys, keysLength);
+    let divElm      = document.getElementById(divID);
+    container.className = "col";
+    clearChildNodes(divElm);
+    divElm.append(container);
+    return container;
+}
+
+
+
+
+
 
 /*    Selection Process    */
 const generateSelectionWindow = (json = "", keys = null, keysLength = 0) => {
@@ -139,6 +175,45 @@ const doUrlAction = (url = "https://www.paypal.me/ITDominator", fileName = "", i
     aTagElm.click();
 }
 
+
+
+
+const showModal = async (modalID = "saveModal") => {
+    tween(1600, "up", modalID); // in miliseconds
+}
+
+const hideModal = (modalID = "saveModal") => {
+    tween(1600, "down", modalID); // in miliseconds
+}
+
+const tween = async (miliseconds, direction, modalID) => {
+    const elm      = document.getElementById(modalID);
+    const timeStep =  1000 / miliseconds;
+    const steps    = timeStep * 100
+
+    if (direction == "up") { // Go up
+        elm.style.display = "";
+        // elm.style.opacity = "1";
+        for (var i = 1; i <= steps; i++) {
+            await sleep(timeStep);
+            elm.style.opacity = i/steps;
+        }
+    } else { // Go down
+        for (var i = steps; i > 1; i--) {
+            await sleep(timeStep);
+            elm.style.opacity = i/steps;
+        }
+        // elm.style.opacity = "0";
+        elm.style.display = "none";
+    }
+
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 const importSession = () => {
     browser.tabs.create({
       url: browser.extension.getURL("../pages/import.html"),
@@ -150,5 +225,11 @@ const toggleSelect = (source, name) => {
     let checkboxes = document.getElementsByName(name);
     for (let i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = source.checked;
+    }
+}
+
+const clearChildNodes = (parent) => {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
     }
 }

@@ -2,50 +2,229 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Mustard UI CSS -->
+    <link rel="stylesheet" href="../styles/libs/mustard-ui.min.css"/>
+
+    <!-- App CSS -->
     <link rel="stylesheet" href="../styles/styles.css"/>
 </head>
 <body>
+    <a id="downloadAnchorElem" href="#"></a>
 
-<center>
-    <input type="image" name="save" src="../images/icons/save.png" title="Save..." alt="Save" />
-    <input type="image" name="edit" src="../images/icons/edit.png" title="Edit..." alt="Edit" />
-    <input type="image" name="delete" src="../images/icons/delete.png" title="Delete..." alt="Delete" />
+    <!-- Main Content -->
+    <div class="row">
+        <div class="col col-sm-3">
+            <ul id="master-left-column" class="menu">
+                <br/>
+                <li><button name="saveModalLauncher" class="button-primary" type="button">Save</button></li>
+                <li><button name="editModalLauncher" class="button-primary" type="button">Edit</button></li>
+                <li><button name="deleteModalLauncher"   class="button-danger" type="button">Delete</button></li>
+                <br/><br/><br/><br/>
+                <li><button name="import"   class="button-primary" type="button">Import</button></li>
+                <li><button name="downloadModalLauncher" class="button-primary" type="button">Download</button></li>
+                <li><button name="donate"   class="button-warning" type="button">Donate</button></li>
+            </ul>
+        </div>
 
-    <br/><br/>
-    <input id="replaceTabs" name="replaceTabs" type="checkbox" />
-    <label for="replaceTabs">Replace Current Tabs</label>
-    <input id="selectiveOpen" name="selectiveOpen" type="checkbox" checked />
-    <label for="selectiveOpen">Selective Open</label>
-
-    <div id="savedSessions">
+        <div id="master-right-column" class="col col-sm-9">
+            <div class="row">
+                <div class="col">
+                    <label for="replaceTabs">Replace Current Tabs
+                        <input id="replaceTabs" name="replaceTabs" type="checkbox" />
+                    </label>
+                    <label for="selectiveOpen">Selective Open
+                        <input id="selectiveOpen" name="selectiveOpen" type="checkbox" checked />
+                    </label>
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col">
+                    <div id="savedSessions" class="scroller">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <input type="image" name="import" src="../images/icons/import.png" title="Import..." alt="Import" />
-    <input type="image" name="donate" src="../images/icons/donate.png" title="Donate..." alt="Donate" />
-    <input type="image" name="download" id="dl" src="../images/icons/download.png" title="Download..." alt="Download" />
-</center>
-
-<template id="ulTemplate">
-    <h2 class="ulHeader"></h2>
-    <input type="checkbox" id="selectAll" checked="true" />
-    <label for="selectAll" title="Select All">Select All</label>
-    <ul class="collection">
-    </ul>
-</template>
-
-<template id="liTemplate">
-    <li>
-        <input type="checkbox" id="" name="" checked="true" />
-        <label for="" title=""></label>
-    </li>
-</template>
+    <!-- Message Gutter -->
+    <div id="master-gutter" class="row">
+        <div class="col">
+            <div id="message-gutter" class="scroller">
+            </div>
+        </div>
+    </div>
 
 
-<a id="downloadAnchorElem" href="#"></a>
-<script src="../scripts/libs//sweetalert2.all.js"></script>
+
+    <!-- Modals -->
+    <!-- Save Modal -->
+    <div id="saveModal" class="modal-mask" style="display:none; opacity: 0%;">
+        <div class="modal">
+            <div class="modal-head">
+                <p class="modal-title">Save - Allowed: a-z, A-Z, 0-9, -, _</p>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <div id="saveList" class="row scroller">
+                        </div>
+                        <p name="toSaveErrMessage"></p>
+                        <input type="text" name="toSaveName" value="">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer align-right">
+                <button class="button-secondary" name="closeSave">Close</button>
+                <button class="button-primary" name="save">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal-mask" style="display:none; opacity: 0%;">
+        <div class="modal">
+            <div class="modal-head">
+                <p class="modal-title">Edit - Allowed: a-z, A-Z, 0-9, -, _</p>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <div id="editList" class="row scroller">
+                        </div>
+                        <p name="toEditErrMessage"></p>
+                        <label>Create New Session<input type="checkbox" name="toEditNewSession"></label>
+                        <input type="text" name="toEditName" value="">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer align-right">
+                <button class="button-secondary" name="closeEdit">Close</button>
+                <button class="button-primary" name="edit">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="modal-mask" style="display:none; opacity: 0%;">
+        <div class="modal">
+            <div class="modal-head">
+                <p class="modal-title">Are you sure?</p>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <p>
+                            Do you wish to delete session:&nbsp;&nbsp;<label name="toDeleteName"></label>&nbsp;&nbsp;?
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer align-right">
+                <button class="button-primary" name="closeDelete">Cancel</button>
+                <button class="button-danger" name="delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Modal -->
+    <div id="downloadModal" class="modal-mask" style="display:none; opacity: 0%;">
+        <div class="modal">
+            <div class="modal-head">
+                <p class="modal-title">Download - Allowed: a-z, A-Z, 0-9, -, _</p>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <!-- Field Grouping -->
+                        <div class="form-control-group">
+                            <div class="form-control">
+                                <label>Append Date
+                                    <input type="checkbox" name="appendDateDlModal">
+                                </label>
+                            </div>
+                            <div class="form-control grow-2x">
+                                <input type="text" name="toDownloadName" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer align-right">
+                <button class="button-secondary" name="closeDownload">Cancel</button>
+                <button class="button-primary" name="download">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Modal -->
+    <div id="loadModal" class="modal-mask" style="display:none; opacity: 0%;">
+        <div class="modal">
+            <div class="modal-head">
+                <p class="modal-title">Selective Open</p>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <div id="loadList" class="row scroller">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer align-right">
+                <button class="button-secondary" name="closeLoad">Close</button>
+                <button class="button-primary" name="load">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Overwrite Modal -->
+    <div id="confModal" class="modal-mask" style="display:none; opacity: 0%;">
+        <div class="modal">
+            <div class="modal-head">
+                <p class="modal-title">Replace?</p>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <p>Found a session with that name! Do you want to replace it?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer align-right">
+                <button class="button-primary" name="closeConfirm">Cancel</button>
+                <button class="button-danger" name="confirm">OK</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Templates -->
+    <template id="ulTemplate">
+        <h2 class="ulHeader"></h2>
+        <input type="checkbox" id="selectAll" checked="true" />
+        <label for="selectAll" title="Select All">Select All</label>
+        <ul class="collection">
+        </ul>
+    </template>
+
+    <template id="liTemplate">
+        <li>
+            <input type="checkbox" id="" name="" checked="true" />
+            <label for="" title=""></label>
+        </li>
+    </template>
+
+
+
 <script src="../scripts/utils.js"></script>
 <script src="../scripts/actions.js"></script>
 <script src="../scripts/session-manager.js"></script>
 <script src="../scripts/events.js"></script>
+
 </body>
 </html>

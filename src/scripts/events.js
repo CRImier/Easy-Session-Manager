@@ -2,8 +2,8 @@ getSavedSessionIDs();
 
 document.addEventListener("click", (e) => {
     if (e.button == 0) {  // Left click
-        const target           = e.target;
-        const action           = target.name;
+        const target  = e.target;
+        const action  = target.name;
 
         // Set selection first before doing any actions...
         if (target.tagName == "LI" && target.className.includes("sessionLI")) {
@@ -22,21 +22,69 @@ document.addEventListener("click", (e) => {
             }
         }
 
-        // If elm has certain action do it.
         const selectedItemName = (selectedItem !== null) ? selectedItem.getAttribute("name") : "";
-        if (/(download|delete|edit)/.test(action)) {
+
+        // Modals
+        if (/(saveModalLauncher|editModalLauncher|deleteModalLauncher|downloadModalLauncher)/.test(action)) {
+            if (action == "saveModalLauncher") {
+                preSaveSession(selectedItem, selectedItemName);
+                showModal("saveModal");
+                return ;
+            }
+
             if (selectedItem) {
-                if (action == "download")
-                    downloadSession(selectedItemName);
-                else if (action == "delete")
-                    deleteFromStorage(selectedItem, selectedItemName);
-                else if (action == "edit")
-                    editSession(selectedItem, selectedItemName);
+                if (action == "editModalLauncher") {
+                    preEditSession(selectedItem, selectedItemName);
+                    showModal("editModal");
+                } else if (action == "deleteModalLauncher") {
+                    document.getElementsByName("toDeleteName")[0].innerText = selectedItemName;
+                    showModal("deleteModal");
+                } else if (action == "downloadModalLauncher") {
+                    preDownloadSession(selectedItemName);
+                    showModal("downloadModal");
+                }
             } else {
                 messageWindow("warning", "Select a session first...");
             }
+
+            return ;
+        }
+
+        if (/(closeSave|closeEdit|closeDownload|closeDelete|closeConfirm|closeLoad)/.test(action)) {
+            if (action.includes("closeSave")) {
+                hideModal("saveModal");
+            } else if (action.includes("closeEdit")) {
+                hideModal("editModal");
+            } else if (action.includes("closeDownload")) {
+                hideModal("downloadModal");
+            } else if (action.includes("closeDelete")) {
+                hideModal("deleteModal");
+            } else if (action.includes("closeConfirm")) {
+                hideModal("confModal");
+            } else if (action.includes("closeLoad")) {
+                hideModal("loadModal");
+            }
+        }
+
+
+        // Actions
+        if (/(download|delete|edit|load)/.test(action)) {
+            if (selectedItem) {
+                if (action == "download") {
+                    downloadSession(selectedItemName);
+                } else if (action == "delete") {
+                    deleteFromStorage(selectedItem, selectedItemName);
+                    hideModal("deleteModal");
+                } else if (action == "edit") {
+                    editSession(selectedItem, selectedItemName);
+                } else if (action == "load") {
+                    startLoadSession();
+                }
+            }
         } else if (action == "save") {
             saveSession(selectedItem, selectedItemName);
+        } else if (action == "confirm") {
+            confirmSessionOverwrite();
         } else if (action == "import") {
             importSession();
         } else if (action == "donate") {
@@ -44,6 +92,7 @@ document.addEventListener("click", (e) => {
         }
     }
 });
+
 
 document.addEventListener("dblclick", (e) => {
     if (e.button == 0) {  // Left click

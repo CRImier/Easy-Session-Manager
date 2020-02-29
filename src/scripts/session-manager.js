@@ -1,14 +1,40 @@
-const message1    = "[ Session Name ] Allowed: a-z, A-Z, 0-9, -, _";
-const message2    = "Allowed: a-z, A-Z, 0-9, -, _ Please try again...\nName too long or none provided; or, unacceptable character used.";
+const message2    = "Name too long or none provided; or, unacceptable character used.";
 const storageApi  = browser.storage.local;
 const tabsApi     = browser.tabs;
 const windowApi   = browser.windows;
 const regexp      = /^[a-zA-Z0-9-_]+$/; // Alphanumeric, dash, underscore
+let willReplace   = false;
+
+// Used as holder for vertain actions and 'cross' modal routs
+let container     = null;
+let holderElm     = null;
+let holderName    = null;
+let holderData    = null;
+let holderSize    = null;
+
+let keys          = null;
+let keysLength    = null;
 
 
-const saveSession = (elm = null, name = null, message = message1) => {
-    let inputTag    = document.createElement("INPUT");
-    let willReplace = false;
+const resetArgs = (modal = "") => {
+    if (modal !== "") {
+        hideModal(modal);
+    }
+
+    willReplace = false;
+    container   = null;
+
+    holderElm   = null;
+    holderName  = null;
+    holderData  = null;
+    holderSize  = null;
+    keys        = null;
+    keysLength  = null;
+}
+
+
+const preSaveSession = (elm = null, name = null, message = "") => {
+    let inputTag    = document.getElementsByName("toSaveName")[0];
     inputTag.value  = new Date().toLocaleString().split(',')[0].replace(/\//g, '-');
 
     if (elm !== null) {
@@ -16,208 +42,173 @@ const saveSession = (elm = null, name = null, message = message1) => {
         willReplace    = true;
     }
 
+    document.getElementsByName("toSaveErrMessage")[0].innerText = message;
+
     windowApi.getAll({ populate: true, windowTypes: ["normal"] }).then((windows) => {
         let sessionData = getSessionData(windows);
-        let keys        = Object.keys(sessionData);
-        let keysLength  = Object.keys(sessionData).length;
-        let container   = generateSelectionWindow(sessionData, keys, keysLength);
-        let textTag     = document.createTextNode(message);
-        let brTag       = document.createElement("BR");
-
-        container.prepend(inputTag);
-        container.prepend(brTag);
-        container.prepend(message);
-
-         Swal.fire({
-             html: container,
-             showCloseButton: true,
-             showCancelButton: true,
-             customClass: 'swal-modal',
-        }).then((result) => {
-            if (result.value) {
-                let enteryName = inputTag.value.replace(/ /g, "_");
-
-                if (enteryName.length < 0 || enteryName.length > 54 || enteryName.search(regexp) == -1) {
-                    saveSession(elm, name, message2);
-                    return ;
-                }
-
-                console.log("Saving session...");
-                sessionData = getSelectionData(container, keys, keysLength);
-                saveToStorage(enteryName, JSON.stringify(sessionData), "save", willReplace, elm);
-            } else {
-                messageWindow("warning", "Canceled save...");
-            }
-        });
+        keys            = Object.keys(sessionData);
+        keysLength      = Object.keys(sessionData).length;
+        container       = loadContainer(sessionData, keys, keysLength, "saveList");
     });
 }
 
-const editSession = (elm = null, name = null, message = message1) => {
-    let id                = name;
-    let inputTag          = document.createElement("INPUT");
-    let newSessionTag     = document.createElement("INPUT");
-    let labelTag          = document.createElement("LABEL");
-    let brTag             = document.createElement("BR");
-    let brTag2            = document.createElement("BR");
+const saveSession = (elm = null, name = null) => {
+    let inputTag   = document.getElementsByName("toSaveName")[0];
+    let enteryName = inputTag.value.replace(/ /g, "_");
 
-    inputTag.value        = id;
-    newSessionTag.type    = "checkbox";
-    newSessionTag.id      = "newSession";
-    newSessionTag.checked = false;
-    labelTag.innerText    = "Create New Session";
-    labelTag.htmlFor      = "newSession";
+    if (enteryName.length < 0 || enteryName.length > 54 || enteryName.search(regexp) == -1) {
+        preSaveSession(elm, name, message2);
+        return ;
+    }
+
+    console.log("Saving session...");
+    sessionData = getSelectionData(container, keys, keysLength);
+    saveToStorage(enteryName, JSON.stringify(sessionData), "save", willReplace, elm);
+    resetArgs("saveModal");
+}
+
+
+
+
+const preEditSession = (elm = null, name = null, message = "") => {
+    let inputTag     = document.getElementsByName("toEditName")[0];
+    let id           = name;
+    inputTag.value   = name;
+
+    document.getElementsByName("toEditErrMessage")[0].innerText = message;
 
     storageApi.get(id).then((results) => {
-        let json        = null;
-        let keys        = null;
-        let keysLength  = null;
-
         try {
-            json        = JSON.parse(results[id]);
-            keys        = Object.keys(json);
-            keysLength  = Object.keys(json).length;
+            let sessionData = JSON.parse(results[id]);
+            keys            = Object.keys(sessionData);
+            keysLength      = Object.keys(sessionData).length;
+            container       = loadContainer(sessionData, keys, keysLength, "editList");
         } catch (e) {
                 messageWindow("warning", "Canceled edit; couldn't load any data...");
+                resetArgs();
                 return ;
         }
-
-        let container   = generateSelectionWindow(json, keys, keysLength);
-        let textTag     = document.createTextNode(message);
-
-        container.prepend(labelTag);
-        container.prepend(newSessionTag);
-        container.prepend(brTag);
-        container.prepend(inputTag);
-        container.prepend(brTag2);
-        container.prepend(message);
-
-        console.log("Editing session...");
-         Swal.fire({
-             html: container,
-             showCloseButton: true,
-             showCancelButton: true,
-             customClass: 'swal-modal',
-        }).then((result) => {
-            if (result.value) {
-                let newName = inputTag.value.replace(/ /g, "_");
-
-                if (newName.length < 0 || newName.length > 54 || newName.search(regexp) == -1) {
-                    editSession(elm, name, message2);
-                    return ;
-                }
-
-                json          = getSelectionData(container, keys, keysLength);
-                const strData = JSON.stringify(json);
-                if (newSessionTag.checked) { // If creating new session
-                    newName   = checkSessionListForDuplicate(newName);
-                    saveToStorage(newName, strData, "save", false, elm);
-                } else {
-                    if (newName == name) { // If not creating new session and are the same name
-                        storageApi.get(id).then((results) => {
-                            storageApi.remove(id);
-                            saveToStorage(newName, strData, "edit", true, elm);
-                        }).then(() => {
-                            const size = getStoreSize(strData);
-                            elm.innerText = size + "  |  " + newName;
-                            elm.setAttribute("name", newName);
-                        });
-                    } else { // If not creating new session and names are not the same rename
-                        storageApi.get(id).then((results) => {
-                            newName = checkSessionListForDuplicate(newName);
-                            storageApi.remove(id);
-                            saveToStorage(newName, strData, "edit", false, elm);
-                        }).then(() => {
-                            const size = getStoreSize(strData);
-                            elm.innerText = size + "  |  " + newName;
-                            elm.setAttribute("name", newName);
-                        });
-                    }
-                }
-            } else {
-                messageWindow("warning", "Canceled edit...");
-            }
-        });
     });
+}
+
+const editSession = (elm = null, name = null, message = "") => {
+    let newSessionTag = document.getElementsByName("toEditNewSession")[0];
+    let inputTag      = document.getElementsByName("toEditName")[0];
+    let newName       = inputTag.value.replace(/ /g, "_");
+    const id          = name;
+
+    if (newName.length < 0 || newName.length > 54 || newName.search(regexp) == -1) {
+        preEditSession(elm, name, message2);
+        return ;
+    }
+
+    let sessionData = getSelectionData(container, keys, keysLength);
+    const strData   = JSON.stringify(sessionData);
+    if (newSessionTag.checked) { // If creating new session
+        newName   = checkSessionListForDuplicate(newName);
+        saveToStorage(newName, strData, "save", false, elm);
+    } else {
+        if (newName == name) { // If not creating new session and are the same name
+            storageApi.get(id).then((results) => {
+                storageApi.remove(id);
+                saveToStorage(newName, strData, "edit", true, elm);
+            }).then(() => {
+                const size = getStoreSize(strData);
+                elm.innerText = size + "  |  " + newName;
+                elm.setAttribute("name", newName);
+            });
+        } else { // If not creating new session and names are not the same rename
+            storageApi.get(id).then((results) => {
+                newName = checkSessionListForDuplicate(newName);
+                storageApi.remove(id);
+                saveToStorage(newName, strData, "edit", false, elm);
+            }).then(() => {
+                const size = getStoreSize(strData);
+                elm.innerText = size + "  |  " + newName;
+                elm.setAttribute("name", newName);
+            });
+        }
+    }
+
+    resetArgs("editModal");
+}
+
+
+
+
+const preDownloadSession = (session = null) => {
+    let fileName = session;
+    document.getElementsByName("toDownloadName")[0].value = fileName;
 }
 
 const downloadSession = (session = null) => {
-    let pTag       = document.createElement("P");
-    let inputTag   = document.createElement("INPUT");
-    let chkBoxTag  = document.createElement("INPUT");
-    let lblTag     = document.createElement("LABEL");
-    let brTag      = document.createElement("BR");
-    let aTagElm    = document.getElementById('downloadAnchorElem');
-    let text       = document.createTextNode("Append Date?");
-    let fileName   = "session:" + session + ".json";
-    let id         = session;
-    chkBoxTag.type = "checkbox";
-    inputTag.value = fileName;
-    chkBoxTag.id   = "chkbx";
-    lblTag.htmlFor = "chkbx";
-    lblTag.append(text);
-    pTag.append(lblTag);
-    pTag.append(chkBoxTag);
-    pTag.append(brTag);
-    pTag.append(inputTag);
+    let chkBoxTag = document.getElementsByName("appendDateDlModal")[0];
+    let fileName  = document.getElementsByName("toDownloadName")[0].value;
+    const id      = session;
 
-     Swal.fire({
-         text: "Download Session?",
-         html: pTag,
-         showCloseButton: true,
-         showCancelButton: true,
-         customClass: 'swal-modal',
-    }).then((willDl) => {
-        if (willDl.value) {
-            if (chkBoxTag.checked) {
-                fileName = "session:" + id + ":" + new Date().toLocaleString()
-                                                            .split(',')[0]
-                                                            .replace(/\//g, "-") + ".json";
-            }
+    if (chkBoxTag.checked) {
+        fileName = "session_" + fileName + "_" + new Date().toLocaleString()
+                                                .split(',')[0]
+                                                .replace(/\//g, "-") + ".json";
+    } else {
+        fileName = "session_" + fileName + ".json";
+    }
 
-            storageApi.get(id).then((results) => {
-                let json    = JSON.parse(results[id]);
-                let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
-                console.log("Downloading: " + id);
-                doUrlAction(dataStr, fileName, true);
-            });
-        }
+    storageApi.get(id).then((results) => {
+        let sessionData = JSON.parse(results[id]);
+        let dataStr     = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sessionData));
+        console.log("Downloading: " + id);
+        doUrlAction(dataStr, fileName, true);
     });
 }
+
+
+
 
 const preLoadSession = (id) => {
     storageApi.get(id).then(results => {
         try {
-            let json          = JSON.parse(results[id]);
-            let keys          = Object.keys(json);
-            let keysLength    = Object.keys(json).length;
+            let sessionData   = JSON.parse(results[id]);
+            let keys          = Object.keys(sessionData);
+            let keysLength    = Object.keys(sessionData).length;
             let replaceTabs   = document.getElementsByName("replaceTabs")[0];
             let selectiveOpen = document.getElementsByName("selectiveOpen")[0];
 
             if (!selectiveOpen.checked) {
-                loadSession(json, replaceTabs.checked);
+                asyn = () => {
+                    loadSession(sessionData, replaceTabs.checked);
+                }
+                asyn();
             } else {
-                let container = generateSelectionWindow(json, keys, keysLength);
-                 Swal.fire({
-                     text: "Selective Open",
-                     html: container,
-                     showCloseButton: true,
-                     showCancelButton: true,
-                }).then((willOpen) => {
-                    if (willOpen.value) {
-                        json = getSelectionData(container, keys, keysLength);
-                        keysLength = Object.keys(json).length;
-                        if (keysLength > 0) {
-                            loadSession(json, replaceTabs.checked);
-                        } else {
-                            messageWindow("warning", "Canceled Operation: No tabs were selected...");
-                        }
-                    }
-                });
+                container = loadContainer(sessionData, keys, keysLength, "loadList");
+                asyn = () => {
+                    setKeyData(keys, keysLength);
+                }
+                asyn();
+                showModal("loadModal");
             }
         } catch (e) {
             messageWindow("error", "Couldn't load session:\n" + e);
         }
     });
+}
+
+// Supports startLoadSession getting the proper data...
+const setKeyData = (_keys, _keysLength) => {
+    keys = _keys;
+    keysLength = _keysLength;
+}
+
+const startLoadSession = () => {
+    sessionData = getSelectionData(container, keys, keysLength);
+    keysLength  = Object.keys(sessionData).length;
+    if (keysLength > 0) {
+        loadSession(sessionData, replaceTabs.checked);
+        hideModal("loadModal");
+    } else {
+        hideModal("loadModal");
+        messageWindow("warning", "Canceled Operation: No tabs were selected...");
+    }
 }
 
 const loadSession = (json = null, replaceTabs = false) => {
@@ -273,4 +264,15 @@ const loadSession = (json = null, replaceTabs = false) => {
     } catch (e) {
         messageWindow("error", "Couldn't load session:\n" + e);
     }
+}
+
+
+
+const confirmSessionOverwrite = () => {
+    storageApi.set({[holderName]: holderData});
+    holderElm = document.getElementsByName(holderName)[0];
+    holderElm.innerText = holderSize + "  |  " + holderName;
+    holderElm.name      = holderName;
+    messageWindow("warning", "Overwrote session...");
+    resetArgs("confModal");
 }

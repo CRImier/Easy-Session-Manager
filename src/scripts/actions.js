@@ -1,10 +1,3 @@
-const messageWindow = (type = "warning", message = "No message passed in...") => {
-    Swal.fire({
-        text: message,
-        icon: type
-    });
-}
-
 const getSavedSessionIDs = () => {
     storageApi.get(null).then((results) => {
         const sessions = Object.keys(results);
@@ -23,22 +16,10 @@ const saveToStorage = (name, data, action = "undefined", willReplace = false, sv
         try {
             const json = JSON.parse(results[name]); // If a session is found
             if (!willReplace) {
-                 Swal.fire({
-                    title: "Replace?",
-                    text: "Found a session with that name! Do you want to replace it?",
-                    icon: "warning",
-                    showCloseButton: true,
-                    showCancelButton: true,
-                }).then((willReplace) => {
-                    if (willReplace.value) {
-                        storageApi.set({[name]: data});
-                        sveElm.innerText = size + "  |  " + name;
-                        sveElm.name      = name;
-                        messageWindow("warning", "Overwrote session...");
-                    } else {
-                        messageWindow("warning", "Canceled " + action + "...");
-                    }
-                });
+                holderName = name;
+                holderData = data;
+                holderSize = size;
+                showModal("confModal");
             } else {
                 sveElm.innerText = size + "  |  " + name;
                 sveElm.name      = name;
@@ -59,23 +40,11 @@ const saveToStorage = (name, data, action = "undefined", willReplace = false, sv
 }
 
 const deleteFromStorage = (elm = null, name = null) => {
-     Swal.fire({
-        title: "Are you sure?",
-        text: "Do you wish to delete session:\n" + name + "?",
-        icon: "warning",
-        showCloseButton: true,
-        showCancelButton: true,
-    }).then((willDelete) => {
-        if (willDelete.value) {
-            storageApi.remove(name).then(() => {
-                elm.parentElement.removeChild(elm);
-            });
-            selectedItem = null; // reset selectedItem
-            messageWindow("success", "Deleted session successfully...");
-        } else {
-            messageWindow("warning", "Canceled deletion...");
-        }
+    storageApi.remove(name).then(() => {
+        elm.parentElement.removeChild(elm);
     });
+    selectedItem = null; // reset selectedItem
+    messageWindow("success", "Deleted session successfully...");
 }
 
 const windowMaker = (i, keysLength, keys, json) => {
