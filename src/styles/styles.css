@@ -6,20 +6,6 @@ body {
 
 ul, li { list-style: none; }
 
-input[type=image] {
-    width: 2.5em;
-    height: 2.5em;
-    padding: 0.4em;
-    background-color: #ffffff;
-    color: #000000;
-}
-
-input[type=image]:hover {
-    cursor: pointer;
-    background-color: #a3b83b;
-    color: #ffffff;
-}
-
 
 /* IDs */
 #master-row {
@@ -135,6 +121,14 @@ input[type=image]:hover {
     margin: 1em 0em;
     padding: 1.5em;
     text-align: center;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Opera and Firefox */
 }
 
 .sessionLI:hover {
