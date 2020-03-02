@@ -21,7 +21,7 @@
                 <li><button name="saveModalLauncher" class="button-primary" type="button">Save</button></li>
                 <li><button name="editModalLauncher" class="button-primary" type="button">Edit</button></li>
                 <li><button name="deleteModalLauncher"   class="button-danger" type="button">Delete</button></li>
-                <br/><br/><br/><br/>
+                <br/><br/><br/>
                 <li><button name="import"   class="button-primary" type="button">Import</button></li>
                 <li><button name="downloadModalLauncher" class="button-primary" type="button">Download</button></li>
                 <li><button name="donate"   class="button-warning" type="button">Donate</button></li>
@@ -205,9 +205,12 @@
 
     <!-- Templates -->
     <template id="ulTemplate">
-        <h2 class="ulHeader"></h2>
-        <input type="checkbox" id="selectAll" checked="true" />
-        <label for="selectAll" title="Select All">Select All</label>
+        <h2 class="ulHeader">
+            <label for="selectAll" title="Select All">
+                <input type="checkbox" checked="true" />
+                Select All
+            </label>
+        </h2>
         <ul class="collection">
         </ul>
     </template>
