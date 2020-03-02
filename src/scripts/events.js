@@ -3,7 +3,8 @@ getSavedSessionIDs();
 document.addEventListener("click", (e) => {
     if (e.button == 0) {  // Left click
         const target  = e.target;
-        const action  = target.name;
+        const action  = target.getAttribute("name");
+
 
         // Set selection first before doing any actions...
         if (target.tagName == "LI" && target.className.includes("sessionLI")) {

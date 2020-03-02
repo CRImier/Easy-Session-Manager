@@ -21,7 +21,7 @@
                 <li><button name="saveModalLauncher" class="button-primary" type="button">Save</button></li>
                 <li><button name="editModalLauncher" class="button-primary" type="button">Edit</button></li>
                 <li><button name="deleteModalLauncher"   class="button-danger" type="button">Delete</button></li>
-                <br/><br/><br/><br/>
+                <br/><br/><br/>
                 <li><button name="import"   class="button-primary" type="button">Import</button></li>
                 <li><button name="downloadModalLauncher" class="button-primary" type="button">Download</button></li>
                 <li><button name="donate"   class="button-warning" type="button">Donate</button></li>
@@ -61,7 +61,7 @@
 
     <!-- Modals -->
     <!-- Save Modal -->
-    <div id="saveModal" class="modal-mask" style="display:none; opacity: 0%;">
+    <div id="saveModal" class="modal-mask" style="display:none; opacity: 0%;" name="closeSave">
         <div class="modal">
             <div class="modal-head">
                 <p class="modal-title">Save - Allowed: a-z, A-Z, 0-9, -, _</p>
@@ -84,7 +84,7 @@
     </div>
 
     <!-- Edit Modal -->
-    <div id="editModal" class="modal-mask" style="display:none; opacity: 0%;">
+    <div id="editModal" class="modal-mask" style="display:none; opacity: 0%;" name="closeEdit">
         <div class="modal">
             <div class="modal-head">
                 <p class="modal-title">Edit - Allowed: a-z, A-Z, 0-9, -, _</p>
@@ -108,7 +108,7 @@
     </div>
 
     <!-- Delete Modal -->
-    <div id="deleteModal" class="modal-mask" style="display:none; opacity: 0%;">
+    <div id="deleteModal" class="modal-mask" style="display:none; opacity: 0%;" name="closeDelete">
         <div class="modal">
             <div class="modal-head">
                 <p class="modal-title">Are you sure?</p>
@@ -130,7 +130,7 @@
     </div>
 
     <!-- Download Modal -->
-    <div id="downloadModal" class="modal-mask" style="display:none; opacity: 0%;">
+    <div id="downloadModal" class="modal-mask" style="display:none; opacity: 0%;" name="closeDownload">
         <div class="modal">
             <div class="modal-head">
                 <p class="modal-title">Download - Allowed: a-z, A-Z, 0-9, -, _</p>
@@ -160,7 +160,7 @@
     </div>
 
     <!-- Load Modal -->
-    <div id="loadModal" class="modal-mask" style="display:none; opacity: 0%;">
+    <div id="loadModal" class="modal-mask" style="display:none; opacity: 0%;" name="closeLoad">
         <div class="modal">
             <div class="modal-head">
                 <p class="modal-title">Selective Open</p>
@@ -181,7 +181,7 @@
     </div>
 
     <!-- Confirm Overwrite Modal -->
-    <div id="confModal" class="modal-mask" style="display:none; opacity: 0%;">
+    <div id="confModal" class="modal-mask" style="display:none; opacity: 0%;" name="closeConfirm">
         <div class="modal">
             <div class="modal-head">
                 <p class="modal-title">Replace?</p>
@@ -205,9 +205,12 @@
 
     <!-- Templates -->
     <template id="ulTemplate">
-        <h2 class="ulHeader"></h2>
-        <input type="checkbox" id="selectAll" checked="true" />
-        <label for="selectAll" title="Select All">Select All</label>
+        <h2 class="ulHeader">
+            <label for="selectAll" title="Select All">
+                <input type="checkbox" checked="true" />
+                Select All
+            </label>
+        </h2>
         <ul class="collection">
         </ul>
     </template>

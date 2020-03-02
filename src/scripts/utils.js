@@ -60,7 +60,7 @@ const generateSelectionWindow = (json = "", keys = null, keysLength = 0) => {
         selAll.addEventListener("click", function (eve) {
             toggleSelect(eve.target, "Win" + i);
         });
-        h2Tag.appendChild(h2Txt);
+        h2Tag.prepend(h2Txt);
 
         store.forEach(tab => {
             let liClone    = document.importNode(liTemplate.content, true);
