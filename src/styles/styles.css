@@ -4,7 +4,21 @@ body {
     overflow: hidden;
 }
 
-ul, li { list-style: none; }
+ul, li {
+    list-style: none;
+}
+
+li {
+    margin: 0.5em 0em;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Opera and Firefox */
+}
 
 
 /* IDs */
@@ -47,23 +61,6 @@ ul, li { list-style: none; }
 #loadList {
     max-height: 250px;
     overflow: auto;
-}
-
-#editSelectionContainer {
-    width: 100%;
-    height: auto;
-    white-space: nowrap;
-    display: block;
-    overflow-x: auto;
-}
-
-#editSelectionContainer > ul {
-    display: block;
-    overflow: auto;
-}
-
-#editSelectionContainer > ul > li {
-    float: left;
 }
 
 #inputId {
@@ -121,14 +118,6 @@ ul, li { list-style: none; }
     margin: 1em 0em;
     padding: 1.5em;
     text-align: center;
-
-    -webkit-touch-callout: none; /* iOS Safari */
-      -webkit-user-select: none; /* Safari */
-       -khtml-user-select: none; /* Konqueror HTML */
-         -moz-user-select: none; /* Old versions of Firefox */
-          -ms-user-select: none; /* Internet Explorer/Edge */
-              user-select: none; /* Non-prefixed version, currently
-                                    supported by Chrome, Opera and Firefox */
 }
 
 .sessionLI:hover {
