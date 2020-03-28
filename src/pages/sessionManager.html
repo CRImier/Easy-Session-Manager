@@ -206,9 +206,14 @@
     <!-- Templates -->
     <template id="ulTemplate">
         <h2 class="ulHeader">
-            <label for="selectAll" title="Select All">
-                <input type="checkbox" checked="true" />
+            <label class="selAllLbl" for="selectAll" title="Select All">
+                <input class="selAll" type="checkbox" checked="true" />
                 Select All
+            </label>
+
+            <label class="titleAllLbl" for="titleAll" title="Show Titles">
+                <input class="titleAll" type="checkbox" checked="true" />
+                Show Titles
             </label>
         </h2>
         <ul class="collection">
@@ -216,9 +221,10 @@
     </template>
 
     <template id="liTemplate">
-        <li>
+        <li class="toggleControls">
             <input type="checkbox" id="" name="" checked="true" />
-            <label for="" title=""></label>
+            <label class="linkLbl" for="" title="" style="display:none;"></label>
+            <label class="titleLbl" for="" title=""></label>
         </li>
     </template>
 

@@ -45,33 +45,59 @@ const generateSelectionWindow = (json = "", keys = null, keysLength = 0) => {
     let liTemplate = document.querySelector('#liTemplate');
 
     for (let i = 0; i < keysLength; i++) {
-        let ulClone      = document.importNode(ulTemplate.content, true);
-        let ulTag        = ulClone.querySelector('.collection');
-        let selAll       = ulClone.querySelector('input');
-        let h2Tag        = ulClone.querySelector('.ulHeader');
-        let ulLblTag     = ulClone.querySelector('label');
-        let h2Txt        = document.createTextNode("Window: " + (i + 1));
-        let store        = json[keys[i]];
-        let  j           = 0;
+        let ulClone       = document.importNode(ulTemplate.content, true);
+        let ulTag         = ulClone.querySelector('.collection');
+        let h2Tag         = ulClone.querySelector('.ulHeader');
+        let h2Txt         = document.createTextNode("Window: " + (i + 1));
 
-        container.id     = "editSelectionContainer";
-        selAll.id        = "selectAllWin" + i;
-        ulLblTag.htmlFor = "selectAllWin" + i;
+        let selAll        = ulClone.querySelector('.selAll');
+        let titleAll      = ulClone.querySelector('.titleAll');
+        let ulLblTag      = ulClone.querySelector('.selAllLbl');
+        let ulLblTag2     = ulClone.querySelector('.titleAllLbl');
+        let store         = json[keys[i]];
+        let  j            = 0;
+
+        container.id      = "editSelectionContainer";
+        selAll.id         = "selectAllWin" + i;
+        titleAll.id       = "selectAllTitle" + i;
+        ulLblTag.htmlFor  = "selectAllWin" + i;
+        ulLblTag2.htmlFor = "selectAllTitle" + i;
+
         selAll.addEventListener("click", function (eve) {
             toggleSelect(eve.target, "Win" + i);
         });
-        h2Tag.prepend(h2Txt);
 
+
+        titleAll.addEventListener("click", function (eve) {
+            toggleTitles(eve.target, "Win" + i);
+        });
+
+
+
+        h2Tag.prepend(h2Txt);
         store.forEach(tab => {
             let liClone    = document.importNode(liTemplate.content, true);
             let inptTag    = liClone.querySelector("input");
-            let lblTag     = liClone.querySelector("label");
+            // link lbl
+            let lblTag     = liClone.querySelector(".linkLbl");
             let labelTxt   = document.createTextNode(tab.link);
+            // title lbnl
+            let lblTag2    = liClone.querySelector(".titleLbl");
+            let labelTxt2  = document.createTextNode(tab.title);
             inptTag.id     = "Win" + i + "Li" + j;
+
             lblTag.htmlFor = "Win" + i + "Li" + j;
             lblTag.title   = tab.link;
+
+            lblTag2.htmlFor = "Win" + i + "Li" + j;
+            lblTag2.title   = tab.link;
+
             inptTag.setAttribute("name", "Win" + i);  // Used for toggle select all
+
             lblTag.appendChild(labelTxt);
+            lblTag2.appendChild(labelTxt2);
+
+
             ulTag.appendChild(liClone);
             j++;
         });
@@ -131,7 +157,8 @@ const getSessionData = (windows) => {
         for (var ii = 0; ii < windows[i].tabs.length; ii++) {
             if (!windows[i].tabs[ii].url.includes("about:")) {
                 links.push(
-                    {"link" : windows[i].tabs[ii].url.trim()}
+                    {"link" : windows[i].tabs[ii].url.trim(),
+                    "title" : windows[i].tabs[ii].title.trim()}
                 );
             }
         }
@@ -151,7 +178,9 @@ const getSelectionData = (container = null, keys = null, keysLength = 0) => {
             let li = ulTags[i].children[ii];
             if (li.children[0].checked) {
                 links.push(
-                    {"link" : li.children[1].innerText.trim()}
+                    {"link" : li.children[1].title.trim(),
+                     "title" : li.children[2].innerText.trim()
+                    }
                 );
             }
         }
@@ -225,6 +254,23 @@ const toggleSelect = (source, name) => {
     let checkboxes = document.getElementsByName(name);
     for (let i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = source.checked;
+    }
+}
+
+const toggleTitles = (source, name) => {
+    let checkboxes = document.getElementsByName(name);
+    for (let i = 0; i < checkboxes.length; i++) {
+        const parent = checkboxes[i].parentElement;
+        const lElm   = parent.querySelector(".linkLbl");
+        const tElm   = parent.querySelector(".titleLbl");
+
+        if (tElm.style.display !== "none") {
+            tElm.style.display = "none";
+            lElm.style.display = "";
+        } else {
+            tElm.style.display = "";
+            lElm.style.display = "none";
+        }
     }
 }
 
