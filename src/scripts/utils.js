@@ -193,6 +193,15 @@ const getSelectionData = (container = null, keys = null, keysLength = 0) => {
     return sessionData;
 }
 
+const deselectAll = (container = null) => {
+    var selAlls = container.querySelectorAll('.selAll');
+    for (var i = 0; i < selAlls.length; i++) {
+        var selAll = selAlls[i];
+        selAll.checked = false;
+        toggleSelect(selAll, "Win" + i);
+    }
+}
+
 const doUrlAction = (url = "https://www.paypal.me/ITDominator", fileName = "", isDownload = false) => {
     let aTagElm = document.getElementById('downloadAnchorElem');
     aTagElm.setAttribute("href", url);

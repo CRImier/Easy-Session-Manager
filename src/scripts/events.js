@@ -67,6 +67,10 @@ document.addEventListener("click", (e) => {
             }
         }
 
+        else if (action.includes("deselectAll")) {
+            var container = document.getElementById("editSelectionContainer");
+            deselectAll(container);
+        }
 
         // Actions
         if (/(download|delete|edit|load)/.test(action)) {
