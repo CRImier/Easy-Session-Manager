@@ -66,9 +66,8 @@ document.addEventListener("click", (e) => {
                 hideModal("loadModal");
             }
         }
-
         else if (action.includes("deselectAll")) {
-            var container = document.getElementById("editSelectionContainer");
+            let container = document.getElementById("editSelectionContainer");
             deselectAll(container);
         }
 

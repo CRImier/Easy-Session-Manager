@@ -194,7 +194,7 @@ const getSelectionData = (container = null, keys = null, keysLength = 0) => {
 }
 
 const deselectAll = (container = null) => {
-    var selAlls = container.querySelectorAll('.selAll');
+    let selAlls = container.querySelectorAll('.selAll');
     for (var i = 0; i < selAlls.length; i++) {
         var selAll = selAlls[i];
         selAll.checked = false;
